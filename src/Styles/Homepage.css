@@ -1,3 +1,28 @@
+.makeblur {
+  position: relative; /* Establish the positioning context for the pseudo-element */
+}
+
+.makeblur::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(2px);
+  z-index: 9998;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1s ease, backdrop-filter 1s ease;
+}
+
+.makeblur.active::before {
+  opacity: 1;
+  backdrop-filter: blur(1px);
+  pointer-events: all;
+}
+
 .header {
   background-color: #fcfcfc;
   height: 75px;
@@ -19,36 +44,33 @@
   justify-content: space-around;
   margin-right: 5%;
 }
-.headerpart > .homepagebuttons {
+.homepagebuttons {
   text-decoration: none;
   color: rgb(61, 61, 61);
   font-family: "Roboto", sans-serif;
   font-weight: 300;
-  font-style: normal;
   padding: 5px;
   border-bottom: 1px solid transparent;
   transition: all 0.3s ease;
-  &:hover {
-    color: black;
-    border-bottom: 1px solid black;
-  }
+}
+.homepagebuttons:hover {
+  color: black;
+  border-bottom: 1px solid black;
 }
 .signinbutton {
   text-decoration: none;
-  color: rgb(61, 61, 61);
   font-family: "Roboto", sans-serif;
   font-weight: 300;
-  font-style: normal;
-  padding: 10px 50px 10px 50px;
+  padding: 10px 50px;
   border-radius: 20px;
   background-color: #2d2d2d;
   color: white;
   transition: all 0.3s ease;
-  &:hover {
-    color: black;
-    background-color: transparent;
-    border: 1px solid #2d2d2d;
-  }
+}
+.signinbutton:hover {
+  color: black;
+  background-color: transparent;
+  border: 1px solid #2d2d2d;
 }
 .headerbottom {
   display: flex;
@@ -64,17 +86,14 @@
   flex-direction: column;
   padding: 20px;
 }
-
 .thought1,
 .thought2 {
   width: 65%;
   font-family: "Scheherazade New", serif;
   font-weight: 300;
   font-size: 50px;
-  white-space: nowrap;
   margin: 5px 0;
   padding: 5px;
-  box-sizing: border-box;
 }
 .thought2 {
   display: flex;
@@ -85,11 +104,9 @@
   width: 45%;
 }
 .qoute {
-  text-decoration: none;
-  color: rgb(61, 61, 61);
   font-family: "Roboto", sans-serif;
   font-weight: 300;
-  font-style: 24px;
+  font-size: 24px;
   margin: auto;
   padding: 5px;
   letter-spacing: 2px;
@@ -102,22 +119,20 @@
   margin-top: auto;
   margin-left: auto;
   text-decoration: none;
-  color: rgb(61, 61, 61);
   font-family: "Roboto", sans-serif;
   font-weight: 300;
-  font-style: normal;
-  padding: 15px 20px 15px 20px;
+  padding: 15px 20px;
   border-radius: 30px;
   background-color: #2d2d2d;
   color: white;
   transition: all 0.3s ease;
   animation: moveUpDown 3s ease-in-out infinite;
-  &:hover {
-    color: black;
-    background-color: transparent;
-    width: 40%;
-    border: 1px solid #2d2d2d;
-  }
+}
+.getstarted:hover {
+  color: black;
+  background-color: transparent;
+  width: 40%;
+  border: 1px solid #2d2d2d;
 }
 
 .footer {
@@ -126,7 +141,6 @@
   margin-top: 4%;
   height: 70px;
   display: flex;
-  flex-direction: row;
   align-items: center;
 }
 .footerpart {
@@ -140,50 +154,41 @@
   color: #626262;
   font-family: "Roboto", sans-serif;
   font-weight: 300;
-  font-style: normal;
   padding: 5px;
   border-bottom: 1px solid transparent;
   transition: all 0.3s ease;
-  &:hover {
-    color: black;
-    border-bottom: 1px solid black;
-  }
 }
-
-.loginform {
-  position: absolute;
-  height: 99%;
-  width: 99%;
-  z-index: 5;
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(7px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+.footerbutons:hover {
+  color: black;
+  border-bottom: 1px solid black;
 }
-
-.mainlogin {
-  position: absolute;
-  width: auto;
-  min-width: 350px;
+.commonbutton {
+  position: absolute; 
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  border: 1px solid #626262;
+  transform: translate(-50%, -10000%);
+  transition: all 0.5s ease;
+  z-index: 9999;
   border-radius: 10px;
-  padding: 20px;
+  background-color: white;
+  border: 1px solid #dbdbdb;
+  padding: 25px;
   box-sizing: border-box;
   display: flex;
-  flex-direction: column; 
-  align-items: center; 
-  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-  opacity: 1;
+  flex-direction: column;
+  align-items: center;
+  min-width: 350px;
+  box-shadow: 0px 0px 1px rgba(3, 7, 18, 0.02), 0px 0px 4px rgba(3, 7, 18, 0.03),
+    0px 1px 9px rgba(3, 7, 18, 0.05), 0px 2px 15px rgba(3, 7, 18, 0.06),
+    0px 3px 24px rgba(3, 7, 18, 0.08);
 }
-.notshow {
-  transform: translate(-50%, -150%); /* Moves the form out of view above */
-  opacity: 0; /* Makes the form invisible */
+
+.commonbutton.show {
+  transform: translate(-50%, -50%);
 }
-.sitename1{
+
+/*This CSS is for Login from */
+.sitename1 {
   width: 100%;
   font-family: "Spirax", system-ui;
   font-weight: 400;
@@ -199,24 +204,25 @@
 
 .close-button {
   position: absolute;
-  top: 10px; 
-  right: 10px; 
-  cursor: pointer; 
-  font-size: 24px; 
-  color: #676767; 
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 24px;
+  color: #676767;
 }
-.inputfields{
+.inputfields {
   width: 100%;
 }
 
-.labelofinput{
+.labelofinput {
   width: 100%;
   font-family: "Roboto", sans-serif;
+  font-weight: 500;
   font-size: small;
   font-style: normal;
   margin-top: 10%;
 }
-.input{
+.input {
   margin-top: 5px;
   display: flex;
   justify-content: space-between;
@@ -226,26 +232,32 @@
   border: 1px solid #676767;
   border-radius: 5px;
 }
-.inputfield{
+
+.inputfield {
   width: 100%;
   padding: 5px;
   border: none;
   outline: none;
 }
-.forgot{
+.forgot {
   width: 100%;
   text-align: end;
 }
-.forgotpassword{
+.forgotpassword {
   font-family: "Roboto", sans-serif;
   font-weight: 300;
   font-size: small;
   font-style: normal;
+  background-color: transparent;
+  border: none;
   text-decoration: none;
-  color: black;
+  color: #626262;
+  &:hover {
+    color: black;
+  }
 }
 
-.signin{
+.signin {
   cursor: pointer;
   margin-top: 10%;
   width: 100%;
@@ -254,17 +266,54 @@
   color: white;
   border: none;
   border-radius: 5px;
+  &:hover {
+    background-color: #313131;
+  }
 }
-.alreadytext{
+.alreadytext {
   width: 100%;
-  margin-top: 5px;
+  margin-top: 5%;
   text-align: center;
   font-family: "Roboto", sans-serif;
   font-weight: 300;
   font-size: small;
   font-style: normal;
   text-decoration: none;
-  color: black;
+  color: #626262;
+  background-color: transparent;
+  border: none;
+  &:hover {
+    color: black;
+  }
+}
+
+.confirmPassword {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.commonbutton-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: height 0.5s ease; /* Smooth transition for height */
+  overflow: hidden; /* Hide overflow to ensure smooth animation */
+  z-index: 9999;
+  border-radius: 10px;
+  background-color: white;
+  border: 1px solid #dbdbdb;
+  padding: 25px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 350px;
+  box-shadow: 0px 0px 1px rgba(3, 7, 18, 0.02), 0px 0px 4px rgba(3, 7, 18, 0.03),
+    0px 1px 9px rgba(3, 7, 18, 0.05), 0px 2px 15px rgba(3, 7, 18, 0.06),
+    0px 3px 24px rgba(3, 7, 18, 0.08);
 }
 @keyframes moveUpDown {
   0%,
