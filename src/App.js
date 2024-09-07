@@ -1,24 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import Homeapage from "./Pages/Homeapage";
+import { useEffect, useState } from "react";
+import Loading from "./Pages/Loading";
+
 
 function App() {
+  const [isLoading,setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setIsLoading(true); 
+    const timer = setTimeout(() => {
+      setIsLoading(false); 
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+  if(isLoading){
+    return (
+    <><Loading/></>
+    );
+  }
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Homeapage/>}/>
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+    </BrowserRouter>
   );
 }
 
