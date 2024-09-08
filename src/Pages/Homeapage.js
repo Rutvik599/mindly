@@ -1,131 +1,140 @@
 import React, { useEffect, useState } from "react";
 import "../Styles/Homepage.css";
 import mainImage from "../undraw_font_re_efri 1.png";
-import { ArrowRight, Eye, EyeOff, X } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Loader2, X } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
   auth,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  sendEmailVerification 
+  sendEmailVerification,
 } from "../Backend/firebase-init";
-import { onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, sendPasswordResetEmail } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-export default function Homeapage() {
+
+export default function Homeapage({ setLoading }) {
+  // State variables
+
+  const [loading,isLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLogin, setIslogin] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-  const togglePasswordVisibility = () => {
-    setPasswordVisible((prevState) => !prevState);
-  };
 
-  const toggleConfirmPasswordVisibility = () => {
-    setConfirmPasswordVisible((prevState) => !prevState);
-  };
-  const reload = () => {
-    window.location.reload();
-  };
+  // Toggle visibility of password
+  const togglePasswordVisibility = () => setPasswordVisible((prev) => !prev);
 
-  useEffect(()=>{
+  // Toggle visibility of confirm password
+  const toggleConfirmPasswordVisibility = () => setConfirmPasswordVisible((prev) => !prev);
+
+  // Reload the page
+  const reload = () => window.location.reload();
+
+  // Handle user authentication state changes
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         console.log("User UID:", user.uid);
-        navigate('/');
+        navigate("/");
       } else {
         console.log("User is logged out");
       }
     });
     return () => unsubscribe();
-  },[]);
+  }, [navigate]);
 
+  // Close form and switch between login, signup, and forgot password forms
   const closeForm = (value) => {
+    setIsForgotPassword(false);
     if (value === 0) {
       setIslogin(false);
       setIsSignUp(true);
     } else if (value === 1) {
       setIslogin(true);
       setIsSignUp(false);
+    } else if (value === 2) {
+      setIsForgotPassword(true);
+      setIslogin(false);
+      setIsSignUp(false);
     } else {
+      setIsForgotPassword(false);
       setIslogin(false);
       setIsSignUp(false);
     }
   };
 
-  const checkformData = () => {
-    if (formData.email == "") {
+  // Validate email format
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  // Check form data validity
+  const checkFormData = () => {
+    if (!email || !isValidEmail(email)) {
       toast.error("Email Address is not valid");
       return false;
     }
-    if (formData.password == "") {
+    if (!password) {
       toast.error("Password is not valid");
       return false;
     }
 
-    if (isSignUp && formData.confirmPassword == "") {
-      toast.error("Please fill out all Fields");
-      return false;
+    if (isSignUp) {
+      if (!confirmPassword) {
+        toast.error("Please fill out all fields");
+        return false;
+      }
+      if (confirmPassword !== password) {
+        toast.error("Passwords don't match");
+        return false;
+      }
     }
-
-    if (isSignUp && formData.confirmPassword !== formData.password) {
-      toast.error("Password Doesn't Match");
-      return false;
-    }
-
     return true;
   };
-  const handleForm = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const formdataObject = Object.fromEntries(formData.entries());
-    setFormData(formdataObject);
-  };
 
+  // Sign in function
   const signin = async () => {
-    if (checkformData) {
+    isLoading(true);
+    if (checkFormData()) {
+      console.log("Attempting sign-in with:", { email, password });
       try {
-        await signInWithEmailAndPassword(
-          auth,
-          formData.email,
-          formData.password
-        );
+        await signInWithEmailAndPassword(auth, email, password);
         toast.success("Logged in successfully");
-        navigate('/');
+        setLoading();
+        navigate("/");
       } catch (error) {
+        console.log(error);
         checkError(error);
       }
     }
+    isLoading(false);
   };
 
+  // Sign up function
   const signup = async () => {
-    if (checkformData) {
+    isLoading(true);
+    if (checkFormData()) {
       try {
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          formData.email,
-          formData.password
-        );
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         await sendEmailVerification(user);
         toast.success("Sign-up successful! Verification email sent.");
-        
+        navigate('/setuserprofile');
       } catch (error) {
         checkError(error);
       }
     } else {
       toast.error("Please fill out all required fields correctly.");
     }
+    isLoading(false);
   };
-  
 
-  const checkError = (error) =>{
+  // Check for authentication errors
+  const checkError = (error) => {
     if (error.code === "auth/email-already-in-use") {
       toast.error("This email is already registered. Please log in.");
     } else if (error.code === "auth/weak-password") {
@@ -133,14 +142,37 @@ export default function Homeapage() {
     } else {
       toast.error("Authentication error: " + error.message);
     }
-  }
+  };
+
+  // Reset password function
+  const resetEmail = async () => {
+    isLoading(true);
+    if (!email) {
+      toast.error("Enter Valid Email Address", {
+        style: { fontSize: "14px", fontFamily: "Roboto" },
+      });
+    } else {
+      try {
+        await sendPasswordResetEmail(getAuth(), email);
+        closeForm(3);
+        toast.success("Reset Link Has been Sent to your email address", {
+          style: { fontSize: "14px", fontFamily: "Roboto" },
+        });
+      } catch (error) {
+        toast.error(`Error: ${error.message}`, {
+          style: { fontSize: "14px", fontFamily: "Roboto" },
+        });
+      }
+    }
+    isLoading(false);
+  };
+
+  // Actual Return
   return (
     <>
-      <ToastContainer autoClose={2000}></ToastContainer>
-      <form
-        className={`commonbutton ${isLogin || isSignUp ? "show" : ""}`}
-        onSubmit={handleForm}
-      >
+      <ToastContainer autoClose={2000} />
+      {/* Login and Sign Up Form */}
+      <form className={`commonbutton ${isLogin || isSignUp ? "show" : ""}`} onSubmit={(e) => e.preventDefault()}>
         <h1 className="sitename1">Mindly</h1>
         <h3 className="thought">
           {isLogin
@@ -155,117 +187,118 @@ export default function Homeapage() {
           <div className="input">
             <input
               type="email"
-              name="email"
               placeholder="abc@xyz.com"
               className="inputfield"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <h3 className="labelofinput">Password</h3>
           <div className="input">
             <input
               type={isPasswordVisible ? "text" : "password"}
-              name="password"
               placeholder="********"
               className="inputfield"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
-            <span
-              onClick={togglePasswordVisibility}
-              style={{ cursor: "pointer" }}
-            >
+            <span onClick={togglePasswordVisibility} style={{ cursor: "pointer" }}>
               {isPasswordVisible ? (
-                <EyeOff
-                  size={20}
-                  strokeWidth={1.7}
-                  style={{ marginRight: "5px" }}
-                />
+                <EyeOff size={20} strokeWidth={1.7} style={{ marginRight: "5px" }} />
               ) : (
-                <Eye
-                  size={20}
-                  strokeWidth={1.7}
-                  style={{ marginRight: "5px" }}
-                />
+                <Eye size={20} strokeWidth={1.7} style={{ marginRight: "5px" }} />
               )}
             </span>
           </div>
           {isLogin && (
             <div className="forgot">
-              <button href="" className="forgotpassword">
-                Forgot Password ?
+              <button className="forgotpassword" onClick={() => closeForm(2)}>
+                Forgot Password?
               </button>
             </div>
           )}
         </div>
         {isSignUp && (
           <div className="confirmPassword">
-            <h3 className="labelofinput"> Confirm Password</h3>
+            <h3 className="labelofinput">Confirm Password</h3>
             <div className="input">
               <input
                 type={isConfirmPasswordVisible ? "text" : "password"}
-                name="consfirmPassword"
                 placeholder="********"
                 className="inputfield"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
               />
-              <span
-                onClick={togglePasswordVisibility}
-                style={{ cursor: "pointer" }}
-              >
-                {isPasswordVisible ? (
-                  <EyeOff
-                    size={20}
-                    strokeWidth={1.7}
-                    style={{ marginRight: "5px" }}
-                  />
+              <span onClick={toggleConfirmPasswordVisibility} style={{ cursor: "pointer" }}>
+                {isConfirmPasswordVisible ? (
+                  <EyeOff size={20} strokeWidth={1.7} style={{ marginRight: "5px" }} />
                 ) : (
-                  <Eye
-                    size={20}
-                    strokeWidth={1.7}
-                    style={{ marginRight: "5px" }}
-                  />
+                  <Eye size={20} strokeWidth={1.7} style={{ marginRight: "5px" }} />
                 )}
               </span>
             </div>
           </div>
         )}
         {isLogin ? (
-          <button className="signin" type="submit" onClick={signin}>
-            Sign in
+          <button className="signin" type="button" onClick={signin} disabled={loading} style={{
+            cursor: loading ? "not-allowed" : "pointer"}}>
+            {!loading ? "Sign in" :
+            <Loader2 size={15} style={{color: "white" }} className="loader"/>}
           </button>
         ) : (
-          <button className="signin" onClick={signup}>
-            Sign up
+          <button className="signin" type="button" onClick={signup}  disabled={loading} style={{
+            cursor: loading ? "not-allowed" : "pointer"}}>
+             {!loading ? "Sign up" :
+            <Loader2 size={15} style={{color: "white" }} className="loader"/>}
           </button>
         )}
         {isLogin ? (
-          <button href="#" className="alreadytext" onClick={() => closeForm(0)}>
-            Don't Have An Account ?{" "}
-            <span style={{ textDecoration: "underline", marginLeft: "5px" }}>
-              Sign up
-            </span>
+          <button className="alreadytext" onClick={() => closeForm(0)}>
+            Don't Have An Account? <span style={{ textDecoration: "underline", marginLeft: "5px" }}>Sign up</span>
           </button>
         ) : (
-          <button href="#" className="alreadytext" onClick={() => closeForm(1)}>
-            Already Have An Account ?
-            <span style={{ textDecoration: "underline", marginLeft: "5px" }}>
-              Sign in
-            </span>
+          <button className="alreadytext" onClick={() => closeForm(1)}>
+            Already Have An Account? <span style={{ textDecoration: "underline", marginLeft: "5px" }}>Sign in</span>
           </button>
         )}
       </form>
-      <div
-        className={`${isLogin || isSignUp ? "makeblur active" : "makeblur"}`}
-      >
+
+      {/* Forgot Password Form */}
+      <form className={`commonbutton ${isForgotPassword ? "show" : ""}`} onSubmit={(e) => e.preventDefault()}>
+        <h1 className="sitename1">Mindly</h1>
+        <h3 className="thought">Password Can be Changed, Emotions Can't</h3>
+        <span className="close-button">
+          <X onClick={() => closeForm(3)} />
+        </span>
+        <div className="inputfields">
+          <h3 className="labelofinput">Email Address</h3>
+          <div className="input">
+            <input
+              type="email"
+              placeholder="abc@xyz.com"
+              className="inputfield"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <button className="signin" type="button" onClick={resetEmail} disabled={loading} style={{
+            cursor: loading ? "not-allowed" : "pointer"}}>
+          {!loading ? "Send Reset Link" :
+            <Loader2 size={15} style={{color: "white" }} className="loader"/>}
+          </button>
+        </div>
+      </form>
+
+      {/* Dashboard */}
+      <div className={`${
+        isLogin || isSignUp || isForgotPassword ? "makeblur active" : "makeblur"
+      }`}>
         <div className="header">
           <h1 className="sitename">Mindly</h1>
           <div className="headerpart">
-            <a href="*" className="homepagebuttons">
-              Features
-            </a>
-            <a href="*" className="homepagebuttons">
-              Contact Team
-            </a>
-            <a href="*" className="homepagebuttons">
-              Write
-            </a>
+            <a href="*" className="homepagebuttons">Features</a>
+            <a href="*" className="homepagebuttons">Contact Team</a>
+            <a href="*" className="homepagebuttons">Write</a>
             <a href="#" className="signinbutton" onClick={() => closeForm(1)}>
               Sign in
             </a>
@@ -276,34 +309,20 @@ export default function Homeapage() {
           <div className="headerbottomcontent">
             <h1 className="thought1">Unveil Thoughts</h1>
             <h1 className="thought2">Voice Yours</h1>
-            <h3 className="qoute">
-              Place Where Your Stories Meet Others' Emotions.
-            </h3>
+            <h3 className="qoute">Place Where Your Stories Meet Others' Emotions.</h3>
             <a href="#" className="getstarted" onClick={() => closeForm(1)}>
               Get Started <ArrowRight style={{ marginLeft: 2 }} />
             </a>
           </div>
         </div>
         <div className="footer">
-          <h1 className="sitename" onClick={reload}>
-            Mindly
-          </h1>
+          <h1 className="sitename" onClick={reload}>Mindly</h1>
           <div className="footerpart">
-            <a href="*" className="footerbutons">
-              Team Mindly
-            </a>
-            <a href="*" className="footerbutons">
-              Contact
-            </a>
-            <a href="*" className="footerbutons">
-              About
-            </a>
-            <a href="*" className="footerbutons">
-              Terms
-            </a>
-            <a href="*" className="footerbutons">
-              Help
-            </a>
+            <a href="*" className="footerbutons">Team Mindly</a>
+            <a href="*" className="footerbutons">Contact</a>
+            <a href="*" className="footerbutons">About</a>
+            <a href="*" className="footerbutons">Terms</a>
+            <a href="*" className="footerbutons">Help</a>
           </div>
         </div>
       </div>
