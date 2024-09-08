@@ -1,5 +1,4 @@
-.setupyourprofile{
-    width: 100%;
+.setupyourprofile {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -7,10 +6,92 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-.setupyourprofile > h1 {
-    font-size: 30px;
-    font-family: 'Courier New', Courier, monospace;
+    width: 50%;
+    border: 1px solid #b0b0b0;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 1px 1px rgba(3, 7, 18, 0.01),
+                0px 5px 4px rgba(3, 7, 18, 0.02),
+                0px 12px 9px rgba(3, 7, 18, 0.02),
+                0px 20px 15px rgba(3, 7, 18, 0.03),
+                0px 32px 24px rgba(3, 7, 18, 0.04);
+  }
+  
+  .profilepicture-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer; /* Indicate clickable area */
+  }
+  
+  .profilepicture {
+    width: 120px; /* Set a fixed width for consistency */
+    height: 120px; /* Maintain aspect ratio */
+    border-radius: 50%; /* Circular profile picture */
+    object-fit: cover; /* Ensure image covers the circle */
+    border: 2px solid #3f3f3f; /* Border around the profile picture */
+    margin-right: 20px; /* Space between image and input fields */
+  }
+  
+  .nameanddescription {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; 
+    width: 70%;
+  }
+  
+  .nameanddescription > input {
+    width: 80%;
+    font-family: "Roboto", system-ui;
+    outline: none;
+    border: none;
+    border-radius: 5px; 
+    margin-bottom: 10px; 
+  }
+  
+  .name {
+    font-size: 2em;
+    letter-spacing: 2px;
+    font-weight: 500;
+  }
+  
+  .description {
+    font-size: 1.2em; 
     font-weight: 400;
-    white-space: nowrap;
-}
+    color: #676767;
+  }
+  
+  .profileactualdetail {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px; /* Space above the profile section */
+  }
+  
+  .setuprofiletext {
+    font-weight: 300;
+    margin-top: 10px;
+    margin-left: 5%;
+    letter-spacing: 2px;
+    color: #676767;
+  }
+
+  .continuebutton{
+    width: 100%;
+    display: flex;
+    justify-content: end;
+  }
+  .continue{
+    cursor: pointer;
+    width: 30%;
+    padding: 10px;
+    background-color: #484848;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    &:hover {
+      background-color: #313131;
+    }
+  }

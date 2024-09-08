@@ -135,14 +135,27 @@ export default function Homeapage({ setLoading }) {
 
   // Check for authentication errors
   const checkError = (error) => {
-    if (error.code === "auth/email-already-in-use") {
-      toast.error("This email is already registered. Please log in.");
-    } else if (error.code === "auth/weak-password") {
-      toast.error("Password should be at least 6 characters.");
-    } else {
-      toast.error("Authentication error: " + error.message);
+    switch (error.code) {
+      case "auth/email-already-in-use":
+        toast.error("This email is already registered. Please log in.");
+        break;
+      case "auth/weak-password":
+        toast.error("Password should be at least 6 characters.");
+        break;
+      case "auth/invalid-email":
+        toast.error("Invalid email address. Please enter a valid email.");
+        break;
+      case "auth/invalid-credential":
+        toast.error("Please check your email and password.");
+        break;
+      case "auth/user-not-found":
+        toast.error("No user found with this email. Please sign up.");
+        break;
+      default:
+        toast.error("Authentication error: " + error.message);
     }
   };
+  
 
   // Reset password function
   const resetEmail = async () => {
@@ -170,7 +183,12 @@ export default function Homeapage({ setLoading }) {
   // Actual Return
   return (
     <>
-      <ToastContainer autoClose={2000} />
+      <ToastContainer style={{
+          fontFamily: 'Roboto',
+          fontSize: '14px'
+        }}
+        autoClose={2000}
+        />
       {/* Login and Sign Up Form */}
       <form className={`commonbutton ${isLogin || isSignUp ? "show" : ""}`} onSubmit={(e) => e.preventDefault()}>
         <h1 className="sitename1">Mindly</h1>

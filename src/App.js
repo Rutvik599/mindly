@@ -30,7 +30,7 @@ function App() {
     <Routes>
       <Route default path="/homepage" element={<Homeapage setLoading = {setLoading}/>}/>
       <Route path="/" element={<Dashboard/>}>
-      <Route path="/setuserprofile" element={<Userprofile/>} />
+      <Route path="/setuserprofile" element={<Userprofile setLoading = {setLoading} />} />
       </Route>
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

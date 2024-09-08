@@ -16,24 +16,23 @@ export default function Dashboard() {
     return () => unsubscribe();
   }, []);
 
-  if(<Outlet/>){
-    return <Outlet/> ;
-  }
-  return (
-        <>
-          {/* Main Dashboard Content */}
-          <div className="line"></div>
-          <div className="secondline"></div>
-          <div className="welcometext">
-            <h1 className="mindly">
-              Welcome To{" "}
-              <span className="sitename" style={{ margin: "0px" }}>
-                Mindly
-              </span>
-            </h1>
-            <h4>This Page is Under Development</h4>
-          </div>
-        </>
+  return outlet ? (
+    <Outlet />
+  ) : (
+    <>
+      {/* Main Dashboard Content */}
+      <div className="line"></div>
+      <div className="secondline"></div>
+      <div className="welcometext">
+        <h1 className="mindly">
+          Welcome To{" "}
+          <span className="sitename" style={{ margin: "0px" }}>
+            Mindly
+          </span>
+        </h1>
+        <h4>This Page is Under Development</h4>
+      </div>
+    </>
   );
 
 }
