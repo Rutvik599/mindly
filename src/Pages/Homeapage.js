@@ -304,13 +304,16 @@ export default function Homeapage({ setLoading }) {
           {!loading ? "Send Reset Link" :
             <Loader2 size={15} style={{color: "white" }} className="loader"/>}
           </button>
+        <button className="alreadytext" onClick={() => closeForm(1)}>
+            Already Have An Account? <span style={{ textDecoration: "underline", marginLeft: "5px" }}>Sign in</span>
+          </button>
         </div>
       </form>
 
       {/* Dashboard */}
       <div className={`${
         isLogin || isSignUp || isForgotPassword ? "makeblur active" : "makeblur"
-      }`}>
+      }`} onClick={isLogin || isSignUp || isForgotPassword ? () => closeForm(3) : undefined}>
         <div className="header">
           <h1 className="sitename">Mindly</h1>
           <div className="headerpart">

@@ -1,5 +1,5 @@
 .makeblur {
-  position: relative; /* Establish the positioning context for the pseudo-element */
+  position: relative; 
 }
 
 .makeblur::before {
@@ -73,11 +73,17 @@
   border: 1px solid #2d2d2d;
 }
 .headerbottom {
+  position: fixed; 
+  top: 50%; 
+  left: 50%; 
+  transform: translate(-50%, -50%); 
+  width: 100%;
   display: flex;
   padding: 20px;
 }
 .headerbottom > img {
   flex: 1;
+  margin-left: 1%;
   animation: moveUpDown 3s ease-in-out infinite;
 }
 .headerbottomcontent {
@@ -136,10 +142,13 @@
 }
 
 .footer {
+  position: fixed;
+  bottom: 0; /* Ensures footer is at the bottom */
+  left: 0;
+  right: 0;
   background-color: #fcfcfc;
   border-top: 1px solid #dbdbdb;
-  margin-top: 4%;
-  height: 70px;
+  height: 80px;
   display: flex;
   align-items: center;
 }
@@ -241,9 +250,11 @@
 }
 .forgot {
   width: 100%;
+  cursor: pointer;
   text-align: end;
 }
 .forgotpassword {
+  cursor: pointer;
   font-family: "Roboto", sans-serif;
   font-weight: 300;
   font-size: small;
@@ -272,6 +283,7 @@
 }
 .alreadytext {
   width: 100%;
+  cursor: pointer;
   margin-top: 5%;
   text-align: center;
   font-family: "Roboto", sans-serif;
