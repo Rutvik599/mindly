@@ -1,21 +1,25 @@
 .setupyourprofile {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 50%;
-    border: 1px solid #b0b0b0;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 1px 1px rgba(3, 7, 18, 0.01),
-                0px 5px 4px rgba(3, 7, 18, 0.02),
-                0px 12px 9px rgba(3, 7, 18, 0.02),
-                0px 20px 15px rgba(3, 7, 18, 0.03),
-                0px 32px 24px rgba(3, 7, 18, 0.04);
-  }
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: none; /* Default hidden */
+  flex-direction: column;
+  align-items: center;
+  width: 50%;
+  border: 1px solid #b0b0b0;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 1px 1px rgba(3, 7, 18, 0.01),
+              0px 5px 4px rgba(3, 7, 18, 0.02),
+              0px 12px 9px rgba(3, 7, 18, 0.02),
+              0px 20px 15px rgba(3, 7, 18, 0.03),
+              0px 32px 24px rgba(3, 7, 18, 0.04);
+}
+
+.setupyourprofile.show {
+  display: flex; /* Show when 'show' class is added */
+}
   
   .profilepicture-container {
     display: flex;
@@ -95,3 +99,38 @@
       background-color: #313131;
     }
   }
+  .selectTag {
+    display: flex; /* Use flexbox for layout */
+    flex-wrap: wrap; /* Allow tags to wrap to the next line */
+    gap: 10px; /* Space between tags */
+    margin: 20px auto; /* Center the container */
+    justify-content: center; /* Center the tags horizontally */
+    max-width: 80%; /* Limit the width of the container (optional) */
+    max-height: 300px;
+    overflow: hidden; /* Hide scrollbar */
+  overflow-y: auto; /* Enable vertical scrolling */
+  }
+  .selectTag::-webkit-scrollbar {
+    display: none; /* Hide scrollbar */
+  }
+  .tagItem {
+    border: 1px solid #3f3f3f;
+    background-color: transparent;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: "Roboto", system-ui;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Add transition for smooth effect */
+}
+
+.tagItem.active {
+  border: 1px solid #3f3f3f;
+    background-color: #3f3f3f; /* Change to your preferred active color */
+    color: white; /* Change text color for active state */
+}
+
+.continuebutton1{
+  width: 80%;
+  display: flex;
+  justify-content:center;
+}

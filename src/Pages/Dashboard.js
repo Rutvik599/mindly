@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import {Outlet, useNavigate, useOutlet } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import {Outlet, Route, Routes, useNavigate, useOutlet } from "react-router-dom";
 import { auth } from "../Backend/firebase-init";
-import "../Styles/Dashboard.css";
+import Header from "../Component/Header";
+import Lefthomepagepart from "../Component/Lefthomepagepart";
+import Otherpage from "./Otherpage";
 export default function Dashboard() {
   const navigate = useNavigate();
   const outlet = useOutlet();
@@ -20,18 +22,8 @@ export default function Dashboard() {
     <Outlet />
   ) : (
     <>
-      {/* Main Dashboard Content */}
-      <div className="line"></div>
-      <div className="secondline"></div>
-      <div className="welcometext">
-        <h1 className="mindly">
-          Welcome To{" "}
-          <span className="sitename" style={{ margin: "0px" }}>
-            Mindly
-          </span>
-        </h1>
-        <h4>This Page is Under Development</h4>
-      </div>
+      {/*<Header/>
+      <Lefthomepagepart searchparam='Following'/>*/}
     </>
   );
 
