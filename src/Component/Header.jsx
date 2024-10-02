@@ -22,36 +22,50 @@ export default function Header() {
 
   useEffect(() => {
     document.title = "Welcome to Mindly";
-
+  
+    // Fetch profile picture and interested tags from localStorage or Firestore
     const userProfilePicUrl = localStorage.getItem("profile_pic_url");
-
+    const userInterestedTags = localStorage.getItem("user_interested_tags");
+  
     if (userProfilePicUrl) {
       setUserProfileImage(userProfilePicUrl);
-    } else {
+    }
+    
+    
+    if(!userProfilePicUrl || !userInterestedTags){
       const fetchUserData = async () => {
         const user = auth.currentUser;
         if (user) {
-          const userDocRef = doc(db, 'users', user.uid);
+          const userDocRef = doc(db, "users", user.uid);
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            setUserProfileImage(userData.profile_pic_url);
-            localStorage.setItem('profile_pic_url', userData.profile_pic_url);
+            if (userData.profile_pic_url) {
+              setUserProfileImage(userData.profile_pic_url);
+              localStorage.setItem("profile_pic_url", userData.profile_pic_url);
+            }
+            if (userData.user_interested_tags) {
+              const tags = userData.user_interested_tags.join(","); // Convert array to comma-separated string
+              localStorage.setItem("user_interested_tags", tags);
+            }
+            localStorage.setItem("user_name",userData.user_name);
           }
         }
       };
-
+  
       fetchUserData();
     }
-
+  
+    // Rotating placeholder text logic
     let index = 0;
     const interval = setInterval(() => {
       setPlaceholderText(`Search ${searchSuggestions[index]}`);
       index = (index + 1) % searchSuggestions.length;
     }, 2000);
-
+  
     return () => clearInterval(interval);
   }, []);
+  
 
   const gotoSearch = () => {
     navigate(`/${searchParams}`);

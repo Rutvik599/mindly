@@ -1,8 +1,13 @@
 // firebase-init.js
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import { getFirestore } from "firebase/firestore"; // Firestore import
+import { 
+  getAuth, 
+  signInWithEmailAndPassword as firebaseSignInWithEmailAndPassword, 
+  createUserWithEmailAndPassword as firebaseCreateUserWithEmailAndPassword, 
+  sendEmailVerification as firebaseSendEmailVerification 
+} from "firebase/auth";
+import { getFirestore } from "firebase/firestore"; 
 
 const firebaseConfig = {
   apiKey: "AIzaSyBygesvHAoygl5FJ2WjYLk8-uTROfDmvSg",
@@ -14,9 +19,17 @@ const firebaseConfig = {
   measurementId: "G-PC27WWN9RF"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
-const db = getFirestore(app); // Initialize Firestore
+const db = getFirestore(app);
 
-export { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification };
+// Export the necessary Firebase methods and services
+export { 
+  auth, 
+  db, 
+  firebaseSignInWithEmailAndPassword as signInWithEmailAndPassword, 
+  firebaseCreateUserWithEmailAndPassword as createUserWithEmailAndPassword, 
+  firebaseSendEmailVerification as sendEmailVerification 
+};
