@@ -5,6 +5,9 @@ import { Bell, Ellipsis, X } from "lucide-react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { blogTags } from "../Utils/tags.js";
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition";
 
 export default function Newstory() {
   const { blogId } = useParams();
@@ -19,6 +22,13 @@ export default function Newstory() {
   const [searchTerm, setSearchTerm] = useState(""); // Holds the input value
   const [filteredTags, setFilteredTags] = useState(blogTags); // Holds the filtered tags
   const [showDropdown, setShowDropdown] = useState(false);
+
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
 
   const toolbarOptions = [
     ["bold", "italic", "link", "image", "blockquote", "code-block"],
@@ -74,6 +84,19 @@ export default function Newstory() {
     setPreviewText(extractedText); // Update state with the extracted text
   }, [value]);
 
+  useEffect(() => {
+    setValue(transcript);
+    console.log("Transcript : ", transcript);
+  }, [transcript]);
+
+  SpeechRecognition.onresult = (event) => {
+    const interimTranscript = Array.from(event.results)
+      .map((result) => result[0].transcript)
+      .join("");
+    setValue(interimTranscript);
+    console.log(interimTranscript);
+  };
+
   const setPublishTitle = (e) => {
     settitlePublish(e.target.value);
   };
@@ -94,6 +117,18 @@ export default function Newstory() {
   };
 
   const firstImageSrc = getFirstImageSrc(value);
+
+  if (!!browserSupportsSpeechRecognition) {
+    console.log("Browser is not Supported");
+  }
+
+  const startListening = () => {
+    SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
+  };
+
+  const stopListening = () => {
+    SpeechRecognition.stopListening();
+  };
 
   return (
     <>
@@ -194,6 +229,10 @@ export default function Newstory() {
               <h4 className="draft-saved-text">Draft in {username}</h4>
             </div>
             <div className="right-side-story-header">
+              <p>Microphone: {listening ? "on" : "off"}</p>
+              <button onClick={startListening}>Start</button>
+              <button onClick={stopListening}>Stop</button>
+              <p>{transcript}</p>
               <button className="publishtag" onClick={submitBlog}>
                 Publish
               </button>
