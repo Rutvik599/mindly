@@ -8,6 +8,8 @@ import { blogTags } from "../Utils/tags.js";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
+import { auth, db } from "../Backend/firebase-init.js";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 export default function Newstory() {
   const { blogId } = useParams();
   const [username, setUsername] = useState("");
@@ -21,12 +23,10 @@ export default function Newstory() {
   const [searchTerm, setSearchTerm] = useState(""); // Holds the input value
   const [filteredTags, setFilteredTags] = useState(blogTags); // Holds the filtered tags
   const [showDropdown, setShowDropdown] = useState(false);
-  const {
-    transcript,
-    listening,
-    resetTranscript,
-    browserSupportsSpeechRecognition,
-  } = useSpeechRecognition();
+  const timeoutIdRef = useRef(null);
+  const [savedText, setsavedText] = useState(false);
+  const { transcript, listening, browserSupportsSpeechRecognition } =
+    useSpeechRecognition();
   const toolbarOptions = [
     ["bold", "italic", "link", "image", "blockquote", "code-block"],
   ];
@@ -41,7 +41,34 @@ export default function Newstory() {
     const userImage = localStorage.getItem("profile_pic_url");
     setUsername(name);
     setUserUrl(userImage);
-  }, []);
+
+    const fetchBlogData = async () => {
+      try {
+        const blogDocRef = doc(db, "Blog", blogId); // Replace 'db' with your Firestore instance
+        const blogDoc = await getDoc(blogDocRef);
+
+        if (blogDoc.exists()) {
+          const jsonData = blogDoc.data(); // Fetch the document data
+
+          const currentUser = auth.currentUser;
+          if (currentUser && jsonData.user_id) {
+            // Check if the currentUser's ID matches the one in the blog data
+            if (currentUser.uid !== jsonData.userId) {
+              navigate("/");
+            }
+          } else {
+            console.error("No user data found or user is not logged in.");
+          }
+        } else {
+          console.error("No such document!");
+        }
+      } catch (error) {
+        console.error("Error fetching blog data: ", error);
+      }
+    };
+
+    fetchBlogData();
+  }, [blogId, navigate]);
 
   const handleInputChange = (e) => {
     const input = e.target.value;
@@ -75,18 +102,78 @@ export default function Newstory() {
       : textContent; // Return first 150 characters
   };
 
+  const storeBlogAsDraft = async () => {
+    try {
+      setsavedText(true);
+      const user = auth.currentUser;
+      const blogDocRef = doc(db, "Blog", blogId);
+
+      const blogData = {
+        blog_id: blogId,
+        user_id: user.uid,
+        blog_title: title,
+        blog_content: value,
+        blog_status: "Draft",
+        created_at: new Date().toISOString(),
+      };
+
+      await setDoc(blogDocRef, blogData);
+
+      console.log("Blog draft saved successfully");
+    } catch (error) {
+      console.error("Error saving blog draft:", error);
+    }
+
+    setTimeout(() => {
+      setsavedText(false);
+    }, 2000);
+  };
+
   useEffect(() => {
-    const extractedText = getFirst150Characters(value); // Get the first 150 characters
-    setPreviewText(extractedText); // Update state with the extracted text
+    // Clear the previous timeout if it's still active
+    if (timeoutIdRef.current) {
+      clearTimeout(timeoutIdRef.current);
+    }
+
+    // Set a new timeout to call the API after a delay (e.g., 2000ms = 2 seconds)
+    timeoutIdRef.current = setTimeout(() => {
+      storeBlogAsDraft(); // Call the function to save the draft
+    }, 2000);
+
+    // Set the preview text based on the first 150 characters
+    const extractedText = getFirst150Characters(value);
+    setPreviewText(extractedText);
+
+    // Cleanup function to clear the timeout when value changes or component unmounts
+    return () => {
+      if (timeoutIdRef.current) {
+        clearTimeout(timeoutIdRef.current);
+      }
+    };
   }, [value]);
 
   const setPublishTitle = (e) => {
     settitlePublish(e.target.value);
   };
+
   const Titlechange = (e) => {
-    setTitle(e.target.value);
+    const value = e.target.value;
+
+    // Clear the previous timeout if it's still active
+    if (timeoutIdRef.current) {
+      clearTimeout(timeoutIdRef.current);
+    }
+
+    // Set a new timeout to call the API after a delay (e.g., 2000ms = 2 seconds)
+    timeoutIdRef.current = setTimeout(() => {
+      storeBlogAsDraft(); // Call the function to save the draft
+    }, 2000);
+
+    // Update the title and call other necessary functions
+    setTitle(value);
     setPublishTitle(e);
   };
+
   const submitBlog = () => {
     setisPublish(true);
     console.log(value);
@@ -102,7 +189,7 @@ export default function Newstory() {
   const firstImageSrc = getFirstImageSrc(value);
 
   const startContinuousListening = () => {
-    if (!browserSupportsSpeechRecognition) {
+    if (browserSupportsSpeechRecognition) {
       SpeechRecognition.startListening({ continuous: true });
     } else {
       alert("This Browser Not Support This Functionality");
@@ -112,6 +199,31 @@ export default function Newstory() {
   useEffect(() => {
     setValue(transcript);
   }, [transcript]);
+
+  const saveAsBlog = async () => {
+    try {
+      const blogDocRef = doc(db, "Blog", blogId);
+
+      const blogData = {
+        blog_title: title,
+        blog_content: value,
+        poster_title: titlePublish,
+        poster_description: previewText,
+        blog_related_tag: searchTerm,
+        blog_status: "Publish",
+        uploded_at: new Date().toISOString(),
+      };
+
+      await setDoc(blogDocRef, blogData, { merge: true });
+
+      console.log("Blog draft saved successfully");
+
+      navigate("/");
+    } catch (error) {
+      console.error("Error saving blog draft:", error);
+    }
+  };
+
   return (
     <>
       {isPublish ? (
@@ -192,7 +304,9 @@ export default function Newstory() {
                 )}
               </div>
             </div>
-            <button className="publishtag1">Publish Now</button>
+            <button className="publishtag1" onClick={saveAsBlog}>
+              Publish Now
+            </button>
           </div>
 
           <X
@@ -209,6 +323,8 @@ export default function Newstory() {
                 Mindly
               </h1>
               <h4 className="draft-saved-text">Draft in {username}</h4>
+
+              {savedText ? <h4 className="saved-text">Saved</h4> : null}
             </div>
             <div className="right-side-story-header">
               {!listening ? (
@@ -234,7 +350,7 @@ export default function Newstory() {
               <button
                 className="publishtag"
                 onClick={submitBlog}
-                disabled={title.length < 10 || value.length < 15}
+                disabled={title.length < 10 || value.length < 30}
               >
                 Publish
               </button>

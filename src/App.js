@@ -6,6 +6,7 @@ import Dashboard from "./Pages/Dashboard";
 import Userprofile from "./Pages/Userprofile";
 import Otherpage from "./Pages/Otherpage";
 import Newstory from "./Pages/Newstory";
+import Yourpost from "./Pages/Yourpost";
 
 function App() {
   const [isLoading, setIsLoading] = useState(false);
@@ -46,6 +47,10 @@ function App() {
           <Route
             path="/p/:blogId/edit"
             element={<Newstory setLoading={setLoading} />}
+          />
+          <Route
+            path="/post/:status"
+            element={<Yourpost setLoading={setLoading} />}
           />
         </Route>
         <Route path="*" element={<Navigate to="/" />} />
