@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../Styles/Newstory.css"; // Ensure your styles are correctly set up
-import { Bell, Ellipsis, X } from "lucide-react";
+import { Bell, Ellipsis, Mic, X } from "lucide-react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { blogTags } from "../Utils/tags.js";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
-
 export default function Newstory() {
   const { blogId } = useParams();
   const [username, setUsername] = useState("");
@@ -22,18 +21,16 @@ export default function Newstory() {
   const [searchTerm, setSearchTerm] = useState(""); // Holds the input value
   const [filteredTags, setFilteredTags] = useState(blogTags); // Holds the filtered tags
   const [showDropdown, setShowDropdown] = useState(false);
-
   const {
     transcript,
     listening,
     resetTranscript,
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
-
   const toolbarOptions = [
     ["bold", "italic", "link", "image", "blockquote", "code-block"],
   ];
-  const quillRef = useRef(null); // Use ref to access the ReactQuill instance
+  const quillRef = useRef(null);
 
   const module = {
     toolbar: toolbarOptions,
@@ -60,7 +57,7 @@ export default function Newstory() {
     const filtered = blogTags.filter((tag) =>
       tag.toLowerCase().includes(input.toLowerCase())
     );
-    setFilteredTags(filtered); // Update the filtered tags
+    setFilteredTags(filtered);
   };
 
   const handleTagSelect = (tag) => {
@@ -78,24 +75,10 @@ export default function Newstory() {
       : textContent; // Return first 150 characters
   };
 
-  // useEffect to update previewText whenever the value prop changes
   useEffect(() => {
     const extractedText = getFirst150Characters(value); // Get the first 150 characters
     setPreviewText(extractedText); // Update state with the extracted text
   }, [value]);
-
-  useEffect(() => {
-    setValue(transcript);
-    console.log("Transcript : ", transcript);
-  }, [transcript]);
-
-  SpeechRecognition.onresult = (event) => {
-    const interimTranscript = Array.from(event.results)
-      .map((result) => result[0].transcript)
-      .join("");
-    setValue(interimTranscript);
-    console.log(interimTranscript);
-  };
 
   const setPublishTitle = (e) => {
     settitlePublish(e.target.value);
@@ -118,18 +101,17 @@ export default function Newstory() {
 
   const firstImageSrc = getFirstImageSrc(value);
 
-  if (!!browserSupportsSpeechRecognition) {
-    console.log("Browser is not Supported");
-  }
-
-  const startListening = () => {
-    SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
+  const startContinuousListening = () => {
+    if (!browserSupportsSpeechRecognition) {
+      SpeechRecognition.startListening({ continuous: true });
+    } else {
+      alert("This Browser Not Support This Functionality");
+    }
   };
 
-  const stopListening = () => {
-    SpeechRecognition.stopListening();
-  };
-
+  useEffect(() => {
+    setValue(transcript);
+  }, [transcript]);
   return (
     <>
       {isPublish ? (
@@ -229,11 +211,31 @@ export default function Newstory() {
               <h4 className="draft-saved-text">Draft in {username}</h4>
             </div>
             <div className="right-side-story-header">
-              <p>Microphone: {listening ? "on" : "off"}</p>
-              <button onClick={startListening}>Start</button>
-              <button onClick={stopListening}>Stop</button>
-              <p>{transcript}</p>
-              <button className="publishtag" onClick={submitBlog}>
+              {!listening ? (
+                <Mic
+                  size={20}
+                  color="#676767"
+                  strokeWidth={1.5}
+                  onClick={startContinuousListening}
+                />
+              ) : (
+                <div
+                  onClick={SpeechRecognition.stopListening}
+                  className="loader1"
+                >
+                  <span className="stroke"></span>
+                  <span className="stroke"></span>
+                  <span className="stroke"></span>
+                  <span className="stroke"></span>
+                  <span className="stroke"></span>
+                </div>
+              )}{" "}
+              {/* Using This Button We can Listen and Stop the Recording*/}
+              <button
+                className="publishtag"
+                onClick={submitBlog}
+                disabled={title.length < 10 || value.length < 15}
+              >
                 Publish
               </button>
               <Ellipsis size={20} color="#676767" />
