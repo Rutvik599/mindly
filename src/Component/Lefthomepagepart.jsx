@@ -50,7 +50,7 @@ export default function Lefthomepagepart({ searchparam }) {
         ))}
       </div>
       <div className="actucal-content-blog">
-        <h3>We are Out of the Service</h3>
+        <h3>Our services are temporarily unavailable.</h3>
       </div>
     </div>
   );

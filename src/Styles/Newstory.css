@@ -138,7 +138,7 @@
   box-sizing: border-box;
 }
 
-.content {
+.content-decs {
   width: 80%;
   margin-top: 20px;
   margin-bottom: 20px;
@@ -148,19 +148,19 @@
   text-align: justify;
 }
 
-.content > p > *,
-.content > b,
-.content > em,
-.content > p {
+.content-decs > p > *,
+.content-decs > b,
+.content-decs > em,
+.content-decs > p {
   font-family: "IBM Plex Serif", system-ui;
   font-style: normal;
   font-size: 16px;
 }
 
-.content > p > a {
+.content-decs > p > a {
   color: #2b2b2b;
 }
-.content > blockquote {
+.content-decs > blockquote {
   font-family: "IBM Plex Serif", system-ui;
   font-style: italic;
   font-size: 16px;
@@ -170,7 +170,7 @@
   letter-spacing: 1px;
 }
 
-.content > pre {
+.content-decs > pre {
   font-family: "Courier New", Courier, "Fira Code", monospace; /* Monospaced font */
   font-size: 14px;
   background-color: #2b2b2b; /* Dark background tone */
@@ -184,7 +184,7 @@
   max-width: 100%; /* Ensure the pre block doesn't exceed its container width */
   border: 1px solid #444; /* Subtle border in dark tone */
 }
-.content > p > img {
+.content-decs > p > img {
   width: 500px;
   margin-top: 10px;
   padding: 5px;
@@ -257,8 +257,6 @@
   line-height: 1.5;
 }
 
-
-
 .publishing {
   margin-top: 30px;
   padding: 0px 0px 0px 5px;
@@ -272,16 +270,16 @@
   margin: 10px 0px 15px 0px;
 }
 
-.saved-text{
+.saved-text {
   font-size: x-small;
   margin-left: 20px;
   color: #676767;
 }
 
 .publishtag:disabled {
-  background-color: #8ead8d; 
-  color: rgb(255, 255, 255);       
-  cursor: not-allowed;    
+  background-color: #8ead8d;
+  color: rgb(255, 255, 255);
+  cursor: not-allowed;
 }
 .addtopic {
   font-family: Arial, Helvetica, sans-serif;
@@ -347,16 +345,20 @@
   &:hover {
     background-color: #147210;
   }
+  &:disabled {
+    background-color: #51914e;
+    cursor: not-allowed;
+  }
 }
 
-.loader1{
+.loader1 {
   height: 10px;
   display: flex;
   align-items: center;
   cursor: pointer;
 }
 
-.loader1 .stroke{
+.loader1 .stroke {
   display: block;
   position: relative;
   background: #525252;
@@ -365,31 +367,29 @@
   border-radius: 50px;
   margin: 0 1px;
   animation: animate 1.2s linear infinite;
-
 }
 
-.stroke:nth-child(1){
+.stroke:nth-child(1) {
   animation-delay: 0s;
 }
-.stroke:nth-child(2){
+.stroke:nth-child(2) {
   animation-delay: 0.3s;
 }
-.stroke:nth-child(3){
+.stroke:nth-child(3) {
   animation-delay: 0.6s;
 }
-.stroke:nth-child(4){
+.stroke:nth-child(4) {
   animation-delay: 0.3s;
 }
-.stroke:nth-child(5){
+.stroke:nth-child(5) {
   animation-delay: 0s;
 }
 
-
-@keyframes animate{
-  50%{
+@keyframes animate {
+  50% {
     height: 20%;
   }
-  100%{
+  100% {
     height: 100%;
   }
 }

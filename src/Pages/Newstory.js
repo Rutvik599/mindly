@@ -52,9 +52,12 @@ export default function Newstory() {
 
           const currentUser = auth.currentUser;
           if (currentUser && jsonData.user_id) {
-            // Check if the currentUser's ID matches the one in the blog data
-            if (currentUser.uid !== jsonData.userId) {
+            if (currentUser.uid !== jsonData.user_id) {
               navigate("/");
+            } else {
+              console.log(jsonData);
+              setTitle(jsonData.blog_title);
+              setValue(jsonData.blog_content);
             }
           } else {
             console.error("No user data found or user is not logged in.");
@@ -75,12 +78,11 @@ export default function Newstory() {
     setSearchTerm(input);
 
     if (input) {
-      setShowDropdown(true); // Show the dropdown when there's input
+      setShowDropdown(true);
     } else {
-      setShowDropdown(false); // Hide the dropdown when input is empty
+      setShowDropdown(false);
     }
 
-    // Filter the tags based on the search input
     const filtered = blogTags.filter((tag) =>
       tag.toLowerCase().includes(input.toLowerCase())
     );
@@ -126,7 +128,7 @@ export default function Newstory() {
 
     setTimeout(() => {
       setsavedText(false);
-    }, 2000);
+    }, 1000);
   };
 
   useEffect(() => {
@@ -138,7 +140,7 @@ export default function Newstory() {
     // Set a new timeout to call the API after a delay (e.g., 2000ms = 2 seconds)
     timeoutIdRef.current = setTimeout(() => {
       storeBlogAsDraft(); // Call the function to save the draft
-    }, 2000);
+    }, 1000);
 
     // Set the preview text based on the first 150 characters
     const extractedText = getFirst150Characters(value);
@@ -232,7 +234,7 @@ export default function Newstory() {
             <p className="previewtext">Preview </p>
             <p className="storyheader">{title}</p>
             <div
-              className="content"
+              className="content-decs"
               dangerouslySetInnerHTML={{ __html: value }}
             ></div>
           </div>
@@ -304,7 +306,15 @@ export default function Newstory() {
                 )}
               </div>
             </div>
-            <button className="publishtag1" onClick={saveAsBlog}>
+            <button
+              className="publishtag1"
+              onClick={saveAsBlog}
+              disabled={
+                !searchTerm ||
+                titlePublish.length < 10 ||
+                previewText.length < 20
+              }
+            >
               Publish Now
             </button>
           </div>

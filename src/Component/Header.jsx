@@ -15,7 +15,7 @@ import { auth, db } from "../Backend/firebase-init";
 import { getDoc, doc } from "firebase/firestore";
 import { generateRandomId } from "../Utils/generateId";
 
-export default function Header() {
+export default function Header({ setLoading }) {
   const [userProfilePicUrl, setUserProfileImage] = useState(null);
   const [placeholderText, setPlaceholderText] = useState("Search...");
   const [searchParams, setSearchParams] = useState("");
@@ -91,6 +91,29 @@ export default function Header() {
       localPart.slice(0, 2) + "*".repeat(localPart.length - 2);
     return `${maskedLocalPart}@${domain}`;
   };
+
+  const clearAllcookies = () => {
+    const cookies = document.cookie.split(";");
+
+    cookies.forEach((cookie) => {
+      const name = cookie.split("=")[0].trim();
+      document.cookie =
+        name + "=;expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+    });
+  };
+
+  const signOut = () => {
+    try {
+      auth.signOut();
+      clearAllcookies();
+      setLoading();
+      console.log("Logout Successfull..");
+      navigate("/homepage");
+    } catch (error) {
+      console.log("LOGOUT-ERROR", error.message);
+    }
+  };
+
   return (
     <div className="top-class-header">
       <div className="left-header-part">
@@ -156,7 +179,11 @@ export default function Header() {
           <h4 className="floating-window-text">Setting</h4>
         </div>
         <div className="divider"></div>
-        <div className="signout">
+        <div
+          className="signout"
+          onClick={signOut}
+          style={{ cursor: "pointer" }}
+        >
           <div className="content">
             <LogOut size={20} color="#975757" strokeWidth={1.25} />
             <h4 className="floating-window-text" style={{ color: "#975757" }}>

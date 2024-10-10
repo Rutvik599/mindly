@@ -38,8 +38,11 @@ function App() {
           element={<Homeapage setLoading={setLoading} />}
         />
         <Route path="/" element={<Dashboard />}>
-          <Route path=":searchparam" element={<Otherpage />} />
-          <Route index element={<Otherpage />} />
+          <Route
+            path=":searchparam"
+            element={<Otherpage setLoading={setLoading} />}
+          />
+          <Route index element={<Otherpage setLoading={setLoading} />} />
           <Route
             path="/setuserprofile"
             element={<Userprofile setLoading={setLoading} />}

@@ -10,31 +10,43 @@ export default function Yourpost() {
   const { status } = useParams();
   const [userBlogs, setUserBlogs] = useState([]);
   const navigate = useNavigate();
-
+  const [userId, setUserId] = useState(null);
   useEffect(() => {
-    const fetchUserBlogs = async () => {
-      const userId = auth.currentUser?.uid;
-
-      // Create a query to get blogs where user_id is equal to userId
-      const blogsRef = collection(db, "Blog");
-      const q = query(blogsRef, where("user_id", "==", userId));
-
-      try {
-        const querySnapshot = await getDocs(q);
-        const blogs = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        // Update the state with the fetched blogs
-        setUserBlogs(blogs);
-      } catch (error) {
-        console.error("Error fetching user blogs:", error);
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        setUserId(null);
       }
-    };
+    });
 
-    fetchUserBlogs();
+    return () => unsubscribe();
   }, []);
+
+  // useEffect to fetch blogs when userId changes
+  useEffect(() => {
+    if (userId) {
+      const fetchUserBlogs = async () => {
+        const blogsRef = collection(db, "Blog");
+        const q = query(blogsRef, where("user_id", "==", userId));
+
+        try {
+          const querySnapshot = await getDocs(q);
+          const blogs = querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+
+          // Update the state with the fetched blogs
+          setUserBlogs(blogs);
+        } catch (error) {
+          console.error("Error fetching user blogs:", error);
+        }
+      };
+
+      fetchUserBlogs();
+    }
+  }, [userId]);
 
   return (
     <>
