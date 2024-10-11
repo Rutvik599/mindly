@@ -73,21 +73,22 @@ export default function Userprofile({ setLoading }) {
   };
 
   const toggleTag = (tag) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag)
-        ? prev.filter((t) => t !== tag) // Remove tag if already selected
-        : [...prev, tag] // Add tag if not selected
+    setSelectedTags(
+      (prev) =>
+        prev.includes(tag)
+          ? prev.filter((t) => t !== tag) // Remove tag if already selected
+          : [...prev, tag] // Add tag if not selected
     );
   };
 
-  const setTagEnagle = () =>{
+  const setTagEnagle = () => {
     if (!name || !description || !profilePicUrl) {
       toast.error("Fields Cannot be Empty");
       return;
-    }else{
+    } else {
       setTagEnabled(true);
     }
-  }
+  };
 
   const storeIntoDatabase = async () => {
     isLoading(true);
@@ -99,25 +100,26 @@ export default function Userprofile({ setLoading }) {
     try {
       const user = auth.currentUser;
       if (user) {
-        const userDocRef = doc(db, 'users', user.uid); // Reference to the user's document
+        const userDocRef = doc(db, "users", user.uid); // Reference to the user's document
 
         await setDoc(userDocRef, {
+          user_id: auth.currentUser.uid,
           user_name: name,
           user_profile_description: description,
           profile_pic_url: profilePicUrl,
-          user_interested_tags: selectedTags // Add the selected tags here
+          user_interested_tags: selectedTags, // Add the selected tags here
         });
 
         // Store profile data in local storage
-        localStorage.removeItem('newUser');
-        localStorage.setItem('user_name', name);
-        localStorage.setItem('user_profile_description', description);
-        localStorage.setItem('profile_pic_url', profilePicUrl);
-        localStorage.setItem('user_interested_tags', selectedTags);
+        localStorage.removeItem("newUser");
+        localStorage.setItem("user_name", name);
+        localStorage.setItem("user_profile_description", description);
+        localStorage.setItem("profile_pic_url", profilePicUrl);
+        localStorage.setItem("user_interested_tags", selectedTags);
 
         toast.success("Profile Created successfully!");
         setLoading();
-        navigate('/');
+        navigate("/");
       } else {
         console.log("User is not authenticated.");
       }
@@ -126,8 +128,7 @@ export default function Userprofile({ setLoading }) {
       toast.error("Error updating profile.");
     }
     isLoading(false);
-};
-
+  };
 
   // Actual Html
   return (
@@ -143,17 +144,19 @@ export default function Userprofile({ setLoading }) {
         <h1 className="sitename">Mindly</h1>
         <h3 className="setuprofiletext">Select Your Interested Tag</h3>
         <div className="selectTag">
-      {blogTags.map((tag, index) => (
-        <button
-          key={index}
-          className={`tagItem ${selectedTags.includes(tag) ? "active" : ""}`}
-          onClick={() => toggleTag(tag)}
-        >
-          {tag}
-        </button>
-      ))}
-    </div>
-    <div className="continuebutton1">
+          {blogTags.map((tag, index) => (
+            <button
+              key={index}
+              className={`tagItem ${
+                selectedTags.includes(tag) ? "active" : ""
+              }`}
+              onClick={() => toggleTag(tag)}
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+        <div className="continuebutton1">
           <button
             className="continue"
             type="button"

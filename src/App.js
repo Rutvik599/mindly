@@ -7,6 +7,8 @@ import Userprofile from "./Pages/Userprofile";
 import Otherpage from "./Pages/Otherpage";
 import Newstory from "./Pages/Newstory";
 import Yourpost from "./Pages/Yourpost";
+import Readblog from "./Pages/Readblog";
+import BlogContextProvider from "./Utils/Contenxtprovider";
 
 function App() {
   const [isLoading, setIsLoading] = useState(false);
@@ -30,35 +32,41 @@ function App() {
     );
   }
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          default
-          path="/homepage"
-          element={<Homeapage setLoading={setLoading} />}
-        />
-        <Route path="/" element={<Dashboard />}>
+    <BlogContextProvider>
+      <BrowserRouter>
+        <Routes>
           <Route
-            path=":searchparam"
-            element={<Otherpage setLoading={setLoading} />}
+            default
+            path="/homepage"
+            element={<Homeapage setLoading={setLoading} />}
           />
-          <Route index element={<Otherpage setLoading={setLoading} />} />
-          <Route
-            path="/setuserprofile"
-            element={<Userprofile setLoading={setLoading} />}
-          />
-          <Route
-            path="/p/:blogId/edit"
-            element={<Newstory setLoading={setLoading} />}
-          />
-          <Route
-            path="/post/:status"
-            element={<Yourpost setLoading={setLoading} />}
-          />
-        </Route>
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-    </BrowserRouter>
+          <Route path="/" element={<Dashboard />}>
+            <Route
+              path=":searchparam"
+              element={<Otherpage setLoading={setLoading} />}
+            />
+            <Route index element={<Otherpage setLoading={setLoading} />} />
+            <Route
+              path="/setuserprofile"
+              element={<Userprofile setLoading={setLoading} />}
+            />
+            <Route
+              path="/p/:blogId/edit"
+              element={<Newstory setLoading={setLoading} />}
+            />
+            <Route
+              path="/post/:status"
+              element={<Yourpost setLoading={setLoading} />}
+            />
+            <Route
+              path="/r/:username/:blogcontent"
+              element={<Readblog setLoading={setLoading} />}
+            />
+          </Route>
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </BrowserRouter>
+    </BlogContextProvider>
   );
 }
 

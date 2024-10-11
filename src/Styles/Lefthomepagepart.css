@@ -4,27 +4,27 @@
   padding: 20px;
   display: flex;
   flex-direction: column;
-  min-height: calc(96vh - 80px);
 }
 
-.user-interested-tag,
-.actucal-content-blog {
+.user-interested-tag {
   border-bottom: 1px solid #c7c7c7;
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  overflow: hidden;
+  gap: 10px;
 }
 
 .actucal-content-blog {
+  width: 100%;
   border: none;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   font-style: normal;
   font-size: small;
   margin-top: 20px;
-  flex-grow: 1;
+  gap: 10px;
 }
 
 .user-interested-tag::-webkit-scrollbar {
@@ -47,4 +47,9 @@
 
 .active {
   border-bottom: black 1px solid;
+}
+
+.actucal-content-blog > .blog-item {
+  width: 100%;
+  display: flex;
 }

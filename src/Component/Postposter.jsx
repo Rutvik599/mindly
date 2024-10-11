@@ -15,6 +15,7 @@ export default function Postposter(props) {
   const [totalword, setTotalWord] = useState(0);
   const [showPopover, setShowPopover] = useState(false);
   const navigate = useNavigate();
+
   useEffect(() => {
     document.title = `Your ${props.blogData.blog_status} - Mindly`;
     console.log(props);

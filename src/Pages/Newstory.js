@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../Styles/Newstory.css"; // Ensure your styles are correctly set up
 import { Bell, Ellipsis, Mic, X } from "lucide-react";
@@ -25,6 +25,8 @@ export default function Newstory() {
   const [showDropdown, setShowDropdown] = useState(false);
   const timeoutIdRef = useRef(null);
   const [savedText, setsavedText] = useState(false);
+  const [alertText, setAlertText] = useState("");
+
   const { transcript, listening, browserSupportsSpeechRecognition } =
     useSpeechRecognition();
   const toolbarOptions = [
@@ -99,12 +101,12 @@ export default function Newstory() {
     tempDiv.innerHTML = htmlContent; // Set the innerHTML to the dangerous HTML
     const textContent = tempDiv.textContent || tempDiv.innerText || ""; // Extract plain text content
 
-    return textContent.length > 200
-      ? textContent.substring(0, 200)
+    return textContent.length > 100
+      ? textContent.substring(0, 100)
       : textContent; // Return first 150 characters
   };
 
-  const storeBlogAsDraft = async () => {
+  const storeBlogAsDraft = useCallback(async () => {
     try {
       setsavedText(true);
       const user = auth.currentUser;
@@ -129,7 +131,7 @@ export default function Newstory() {
     setTimeout(() => {
       setsavedText(false);
     }, 1000);
-  };
+  }, [blogId, title, value]);
 
   useEffect(() => {
     // Clear the previous timeout if it's still active
@@ -152,16 +154,21 @@ export default function Newstory() {
         clearTimeout(timeoutIdRef.current);
       }
     };
-  }, [value]);
+  }, [value, storeBlogAsDraft]);
 
   const setPublishTitle = (e) => {
-    settitlePublish(e.target.value);
+    const totalLength = e.target.value;
+    if (totalLength.length < 60) {
+      setAlertText("");
+      settitlePublish(e.target.value);
+    } else {
+      setAlertText("Poster Title Maximum size is 60 character");
+    }
   };
 
   const Titlechange = (e) => {
     const value = e.target.value;
 
-    // Clear the previous timeout if it's still active
     if (timeoutIdRef.current) {
       clearTimeout(timeoutIdRef.current);
     }
@@ -171,7 +178,6 @@ export default function Newstory() {
       storeBlogAsDraft(); // Call the function to save the draft
     }, 2000);
 
-    // Update the title and call other necessary functions
     setTitle(value);
     setPublishTitle(e);
   };
@@ -226,6 +232,15 @@ export default function Newstory() {
     }
   };
 
+  const textAreaChange = (e) => {
+    const totalLength = e.target.value;
+    if (totalLength.length < 100) {
+      setAlertText("");
+      setPreviewText(totalLength);
+    } else {
+      setAlertText("Description Lenght Maximum size is 100 character.");
+    }
+  };
   return (
     <>
       {isPublish ? (
@@ -263,7 +278,7 @@ export default function Newstory() {
               <textarea
                 className="storyfirsttext"
                 value={previewText}
-                onChange={(e) => setPreviewText(e.target.value)}
+                onChange={textAreaChange}
                 style={{ resize: "none", overflow: "hidden" }} // Disable manual resizing and hide scroll
                 onInput={(e) => {
                   e.target.style.height = "auto"; // Reset height
@@ -275,6 +290,9 @@ export default function Newstory() {
                   }
                 }}
               />
+              {alertText ? (
+                <h4 className="alertText">* {alertText} *</h4>
+              ) : null}
             </div>
             <div className="publishing">
               <p className="publishingtext">Publishing to {username}</p>
