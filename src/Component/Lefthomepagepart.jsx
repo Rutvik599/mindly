@@ -1,4 +1,4 @@
-// This is Actually Left side of the part
+// This is the part where the actual part is visible
 
 import React, { useCallback, useEffect, useState } from "react";
 import "../Styles/Lefthomepagepart.css";
@@ -7,11 +7,18 @@ import { useNavigate } from "react-router-dom";
 import { auth, db } from "../Backend/firebase-init";
 import { collection, getDocs, limit, query, where } from "firebase/firestore";
 import Visiblepost from "./Visiblepost";
-
+import { blogTags } from "../Utils/tags.js";
 export default function Lefthomepagepart({ searchparam }) {
   const [userInterestedTag, setInterestedTag] = useState(["Following"]);
   const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
+  const [recommendedTags, setrecommendedTags] = useState([]);
+
+  const getRandomTags = (tags, count = 6) => {
+    const shuffledTags = [...tags].sort(() => 0.5 - Math.random());
+    return shuffledTags.slice(0, count);
+  };
+
   useEffect(() => {
     const tags = localStorage.getItem("user_interested_tags");
     if (tags) {
@@ -23,6 +30,9 @@ export default function Lefthomepagepart({ searchparam }) {
         return Array.from(new Set(combinedTags));
       });
     }
+
+    const randomTags = getRandomTags(blogTags);
+    setrecommendedTags(randomTags);
   }, []);
 
   const fetchInitialBlog = useCallback(async () => {
@@ -56,48 +66,103 @@ export default function Lefthomepagepart({ searchparam }) {
   }, [searchparam, fetchInitialBlog]);
 
   return (
-    <div className="left-side-of-the-part">
-      <div className="user-interested-tag">
-        <Plus
-          strokeWidth={1.2}
-          size={20}
-          style={{ cursor: "pointer", paddingBottom: "10px" }}
-        />
-        {userInterestedTag.map((tag, index) => (
-          <h4
-            key={index}
-            className={`tags ${
-              searchparam === tag || (index === 0 && searchparam === undefined)
-                ? "active"
-                : ""
-            }`}
-            onClick={() => {
-              if (tag === "Following") {
-                navigate(`/`); // Navigate to root if "Following" is clicked
-              } else {
-                navigate(`/${tag}`); // Navigate to the specific tag otherwise
-              }
-            }}
-          >
-            {tag}
-          </h4>
-        ))}
+    <div className="main-tag">
+      <div className="left-side-of-the-part">
+        <div className="user-interested-tag">
+          <Plus
+            strokeWidth={1.2}
+            size={20}
+            style={{ cursor: "pointer", paddingBottom: "10px" }}
+          />
+          {userInterestedTag.map((tag, index) => (
+            <h4
+              key={index}
+              className={`tags ${
+                searchparam === tag ||
+                (index === 0 && searchparam === undefined)
+                  ? "active"
+                  : ""
+              }`}
+              onClick={() => {
+                if (tag === "Following") {
+                  navigate(`/`); // Navigate to root if "Following" is clicked
+                } else {
+                  navigate(`/${tag}`); // Navigate to the specific tag otherwise
+                }
+              }}
+            >
+              {tag}
+            </h4>
+          ))}
+        </div>
+        <div className="actucal-content-blog">
+          {blogs[0]?.blog_related_tag === searchparam ? (
+            <>
+              {blogs
+                .slice()
+                .reverse()
+                .map((blog) => (
+                  <div key={blog.id} className="blog-item">
+                    <Visiblepost blogData={blog} />
+                  </div>
+                ))}
+            </>
+          ) : (
+            <h3>Our services are temporarily unavailable.</h3>
+          )}
+        </div>
       </div>
-      <div className="actucal-content-blog">
-        {blogs[0]?.blog_related_tag === searchparam ? (
-          <>
-            {blogs
-              .slice()
-              .reverse()
-              .map((blog) => (
-                <div key={blog.id} className="blog-item">
-                  <Visiblepost blogData={blog} />
-                </div>
-              ))}
-          </>
-        ) : (
-          <h3>Our services are temporarily unavailable.</h3>
-        )}
+      <div className="right-side-of-the-part">
+        <div className="recommended-title-div">
+          <h1 className="recommended-title">Recomended Title</h1>
+          <div className="actual-recommended-title">
+            {recommendedTags.map((tag, index) => (
+              <span key={index} className="tag-item-recommended">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="trending-topics">
+          <div className="trending-topics-title">
+            <h1 className="recommended-title">Trending Topics</h1>
+            <p className="trending-topics-view">view</p>
+          </div>
+          <div className="trending-data">
+            <div className="fake-skeleton">
+              <div className="skeleton-item"></div>
+              <div className="skeleton-item"></div>
+              <div className="skeleton-item short"></div>
+            </div>
+            <div className="fake-skeleton">
+              <div className="skeleton-item"></div>
+              <div className="skeleton-item"></div>
+              <div className="skeleton-item short"></div>
+            </div>
+            <div className="fake-skeleton">
+              <div className="skeleton-item"></div>
+              <div className="skeleton-item"></div>
+              <div className="skeleton-item short"></div>
+            </div>
+          </div>
+          <div className="right-bottom-part">
+            <div className="trending-topics-title">
+              <h1 className="recommended-title">Write Some Emotions</h1>
+              <p className="trending-topics-view">Let's Go</p>
+            </div>
+            <p className="right-bottom-thoughts">
+              "Start Writing Now" with Our New Voice-to-Text Feature Make
+              Writing Easier and Faster
+            </p>
+            <div className="footer-buttons">
+              <button className="footer-bottom-right">Team Mindly</button>
+              <button className="footer-bottom-right">Contact</button>
+              <button className="footer-bottom-right">About</button>
+              <button className="footer-bottom-right">Terms</button>
+              <button className="footer-bottom-right">Help</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

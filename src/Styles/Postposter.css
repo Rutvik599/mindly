@@ -3,6 +3,7 @@
   border-bottom: 1px solid #d8d8d8;
   overflow: hidden;
   position: relative;
+  min-height: 100px;
 }
 
 .header-poster {
@@ -51,15 +52,16 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 10px 20px 10px 20px;
   z-index: 1000;
-  right: 10px;
-  opacity: 0; /* Initially hidden */
-  transform: translateY(-10px); /* Slide popover up initially */
-  transition: opacity 0.3s ease, transform 0.3s ease; /* Add transition */
+  top: 0px;
+  right: 15px;
+  opacity: 0; 
+  transform: translateY(-10px); 
+  transition: opacity 0.3s ease, transform 0.3s ease; 
 }
 
 .popover.visible {
-  opacity: 1; /* Fully visible */
-  transform: translateY(0); /* Slide popover into place */
+  opacity: 1; 
+  transform: translateY(0); 
   border-radius: 5px;
 }
 

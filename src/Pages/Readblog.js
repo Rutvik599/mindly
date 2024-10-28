@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import { blogCurrentData, blogCurrentUserData } from "../Utils/context";
 import "../Styles/Readblog.css";
 import Header from "../Component/Header";
