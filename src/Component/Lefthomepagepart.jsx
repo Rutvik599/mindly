@@ -8,6 +8,8 @@ import { auth, db } from "../Backend/firebase-init";
 import { collection, getDocs, limit, query, where } from "firebase/firestore";
 import Visiblepost from "./Visiblepost";
 import { blogTags } from "../Utils/tags.js";
+import { generateRandomId } from "../Utils/generateId";
+
 export default function Lefthomepagepart({ searchparam }) {
   const [userInterestedTag, setInterestedTag] = useState(["Following"]);
   const navigate = useNavigate();
@@ -65,6 +67,11 @@ export default function Lefthomepagepart({ searchparam }) {
     }
   }, [searchparam, fetchInitialBlog]);
 
+  const navigatetowrite = () => {
+    navigate(`/p/${generateRandomId()}/edit`);
+  };
+
+  // here is the actual jsx is Starting
   return (
     <div className="main-tag">
       <div className="left-side-of-the-part">
@@ -148,14 +155,21 @@ export default function Lefthomepagepart({ searchparam }) {
           <div className="right-bottom-part">
             <div className="trending-topics-title">
               <h1 className="recommended-title">Write Some Emotions</h1>
-              <p className="trending-topics-view">Let's Go</p>
+              <p className="trending-topics-view" onClick={navigatetowrite}>
+                Let's Go
+              </p>
             </div>
             <p className="right-bottom-thoughts">
               "Start Writing Now" with Our New Voice-to-Text Feature Make
               Writing Easier and Faster
             </p>
             <div className="footer-buttons">
-              <button className="footer-bottom-right">Team Mindly</button>
+              <button
+                className="footer-bottom-right"
+                onClick={() => navigate("/teammindly")}
+              >
+                Team Mindly
+              </button>
               <button className="footer-bottom-right">Contact</button>
               <button className="footer-bottom-right">About</button>
               <button className="footer-bottom-right">Terms</button>

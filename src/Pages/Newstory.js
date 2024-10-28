@@ -115,8 +115,8 @@ export default function Newstory() {
       const blogData = {
         blog_id: blogId,
         user_id: user.uid,
-        blog_title: title,
-        blog_content: value,
+        blog_title: title ? title : "Undefined Title",
+        blog_content: value ? value : "No Description Avaiable",
         blog_status: "Draft",
         created_at: new Date().toISOString(),
       };

@@ -125,6 +125,7 @@ export default function Postposter(props) {
                 ) : (
                   <>
                     <li onClick={navigateToStoryEdit}>Edit Story</li>
+
                     <div className="divider"></div>
                     <li onClick={deleteCurrentBlog}>Delete Story</li>
                   </>
@@ -149,10 +150,6 @@ export default function Postposter(props) {
           </h3>
           <Dot color="#676767" size={20} />
           <h3 className="totalword">{totalword} words</h3>
-          <Dot color="#676767" size={20} />
-          <h3 className="totalword">
-          {(totalword / 200).toFixed(0) > 0 ? (totalword / 200).toFixed(0) : '1'} Minutes to Read
-          </h3>
         </div>
       </div>
     </>

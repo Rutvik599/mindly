@@ -9,6 +9,7 @@ import Newstory from "./Pages/Newstory";
 import Yourpost from "./Pages/Yourpost";
 import Readblog from "./Pages/Readblog";
 import BlogContextProvider from "./Utils/Contenxtprovider";
+import Teammindly from "./Pages/Teammindly";
 
 function App() {
   const [isLoading, setIsLoading] = useState(false);
@@ -39,6 +40,11 @@ function App() {
             default
             path="/homepage"
             element={<Homeapage setLoading={setLoading} />}
+          />
+          <Route
+            default
+            path="/teammindly"
+            element={<Teammindly setLoading={setLoading} />}
           />
           <Route path="/" element={<Dashboard />}>
             <Route
