@@ -14,13 +14,17 @@ import { useNavigate } from "react-router-dom";
 import { auth, db } from "../Backend/firebase-init";
 import { getDoc, doc } from "firebase/firestore";
 import { generateRandomId } from "../Utils/generateId";
+import { blogTags } from "../Utils/tags";
 
 export default function Header({ setLoading }) {
   const [userProfilePicUrl, setUserProfileImage] = useState(null);
   const [placeholderText, setPlaceholderText] = useState("Search...");
   const [searchParams, setSearchParams] = useState("");
+  const [filteredTags, setFilteredTags] = useState([]);
+  const [isFocused, setIsFocused] = useState(false);
   const navigate = useNavigate();
   const [sidebar, setSideBarStatus] = useState(false);
+
   const searchSuggestions = useMemo(
     () => [
       '"Artificial Intelligence"',
@@ -35,7 +39,6 @@ export default function Header({ setLoading }) {
   useEffect(() => {
     document.title = "Welcome to Mindly";
 
-    // Fetch profile picture and interested tags from localStorage or Firestore
     const userProfilePicUrl = localStorage.getItem("profile_pic_url");
     const userInterestedTags = localStorage.getItem("user_interested_tags");
 
@@ -56,7 +59,7 @@ export default function Header({ setLoading }) {
               localStorage.setItem("profile_pic_url", userData.profile_pic_url);
             }
             if (userData.user_interested_tags) {
-              const tags = userData.user_interested_tags.join(","); // Convert array to comma-separated string
+              const tags = userData.user_interested_tags.join(",");
               localStorage.setItem("user_interested_tags", tags);
             }
             localStorage.setItem("user_name", userData.user_name);
@@ -67,7 +70,6 @@ export default function Header({ setLoading }) {
       fetchUserData();
     }
 
-    // Rotating placeholder text logic
     let index = 0;
     const interval = setInterval(() => {
       setPlaceholderText(`Search ${searchSuggestions[index]}`);
@@ -78,7 +80,7 @@ export default function Header({ setLoading }) {
   }, [searchSuggestions]);
 
   const gotoSearch = () => {
-    navigate(`/${searchParams}`);
+    console.log("Search Param", searchParams);
   };
 
   const gotowrite = () => {
@@ -107,11 +109,39 @@ export default function Header({ setLoading }) {
       auth.signOut();
       clearAllcookies();
       setLoading();
-      console.log("Logout Successfull..");
+      console.log("Logout Successful..");
       navigate("/homepage");
     } catch (error) {
       console.log("LOGOUT-ERROR", error.message);
     }
+  };
+
+  // Update search suggestions as the user types
+  const handleSearchInputChange = (e) => {
+    const input = e.target.value;
+    setSearchParams(input);
+
+    // Filter tags based on the input
+    if (input) {
+      const suggestions = blogTags.filter((tag) =>
+        tag.toLowerCase().includes(input.toLowerCase())
+      );
+      setFilteredTags(suggestions);
+    } else {
+      setFilteredTags([]);
+    }
+  };
+
+  const searchContent = (tag) => {
+    setSearchParams(tag);
+    setFilteredTags([]);
+    navigate(`/searchresult/${tag}`);
+  };
+
+  // Handle input focus and blur
+  const handleInputFocus = () => setIsFocused(true);
+  const handleInputBlur = () => {
+    setTimeout(() => setIsFocused(false), 150); // Delay to allow click event to fire
   };
 
   return (
@@ -134,14 +164,31 @@ export default function Header({ setLoading }) {
             type="text"
             className="search-content-bar"
             value={searchParams}
-            onChange={(e) => setSearchParams(e.target.value)}
+            onChange={handleSearchInputChange}
             placeholder={placeholderText}
+            onFocus={handleInputFocus}
+            onBlur={handleInputBlur}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 gotoSearch();
               }
             }}
           />
+          {isFocused && filteredTags.length > 0 && (
+            <ul className="suggestions-list">
+              {filteredTags.map((tag, index) => (
+                <li
+                  key={index}
+                  onMouseDown={() => {
+                    searchContent(tag);
+                  }}
+                  className="suggestion-item"
+                >
+                  {tag}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
       <div className="right-header-part">

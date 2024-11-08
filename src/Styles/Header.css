@@ -142,3 +142,24 @@
   margin-top: -10px;
   margin-bottom: 10px;
 }
+
+.suggestions-list {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #d8d8d8;
+  width: 20%;
+  top: 60px;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.suggestion-item {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.suggestion-item:hover {
+  background-color: #dddddd;
+}

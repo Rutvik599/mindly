@@ -7,7 +7,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { blogCurrentData, blogCurrentUserData } from "../Utils/context";
 import { useNavigate } from "react-router-dom";
 
-export default function Visiblepost(props) {
+export default function Publicprofilepost(props) {
   const [userData, setuserData] = useState(null);
   const [blogthumb_nail, setThumbnail] = useState(null);
   const { setCurrentBlogData } = useContext(blogCurrentData);
@@ -106,13 +106,6 @@ export default function Visiblepost(props) {
 
     navigate(linkToCopy);
   };
-
-  const gotouser = () => {
-    console.log(userData.user_name);
-    userData.user_name
-      ? navigate(`/search/profile/${userData.user_name}`)
-      : alert("No user found currently");
-  };
   return (
     <>
       <ToastContainer
@@ -123,17 +116,12 @@ export default function Visiblepost(props) {
         autoClose={2000}
       />
       <div className="visible-post-main-div">
-        <div className="top-side-visible-post" onClick={gotouser}>
-          <img src={userData?.profile_pic_url} alt="" />
-          <h3 className="user-name-visible-post">{userData?.user_name}</h3>
-        </div>
-
-        <div className="bottom-content-visible-post" onClick={gotoCurrentBlog}>
+        <div className="bottom-content-visible-post">
           <div className="left-side-visible-post">
-            <h1 className="visible-blog-title">
+            <h1 className="visible-blog-title" onClick={gotoCurrentBlog}>
               {props.blogData.poster_title}
             </h1>
-            <h2 className="visible-blog-desc">
+            <h2 className="visible-blog-desc" onClick={gotoCurrentBlog}>
               {props.blogData.poster_description}
             </h2>
             <div className="left-side-visible-bottom">
@@ -177,6 +165,9 @@ export default function Visiblepost(props) {
                 />
               </div>
             </div>
+            <p className="tag-bottom-which-type">
+              Written on {props.blogData.blog_related_tag}
+            </p>
           </div>
 
           <div className="right-side-visible-post">

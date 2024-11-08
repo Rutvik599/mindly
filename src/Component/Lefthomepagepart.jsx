@@ -71,6 +71,9 @@ export default function Lefthomepagepart({ searchparam }) {
     navigate(`/p/${generateRandomId()}/edit`);
   };
 
+  const gotosearch = (tag) => {
+    navigate(`/searchresult/${tag}`);
+  };
   // here is the actual jsx is Starting
   return (
     <div className="main-tag">
@@ -124,7 +127,11 @@ export default function Lefthomepagepart({ searchparam }) {
           <h1 className="recommended-title">Recomended Title</h1>
           <div className="actual-recommended-title">
             {recommendedTags.map((tag, index) => (
-              <span key={index} className="tag-item-recommended">
+              <span
+                key={index}
+                className="tag-item-recommended"
+                onClick={() => gotosearch(tag)}
+              >
                 {tag}
               </span>
             ))}

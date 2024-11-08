@@ -73,14 +73,14 @@
 
 .gotohomepage {
   margin-top: 80px;
-  background-color: transparent;
-  border: none;
-  font-size: 16px;
   cursor: pointer;
-  padding: 10px;
-  transition: all 0.3s ease;
+  font-family: "Poppins", sans-serif;
+  background-color: transparent;
+  border: 1px solid #d8d8d8;
+  padding: 10px 15px 10px 15px;
+  transition: all 0.5s ease;
   &:hover {
-    background-color: #383838;
+    background-color: black;
     color: white;
   }
 }

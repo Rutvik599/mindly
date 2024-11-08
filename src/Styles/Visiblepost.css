@@ -91,3 +91,11 @@
   align-items: center;
   gap: 30px;
 }
+
+.tag-bottom-which-type {
+  margin-top: 10px;
+  font-size: 14px;
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  color: #676767;
+}
