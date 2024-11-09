@@ -2,16 +2,18 @@ import React, { useContext, useEffect, useState } from "react";
 import { blogCurrentData, blogCurrentUserData } from "../Utils/context";
 import "../Styles/Readblog.css";
 import Header from "../Component/Header";
-import { Dot } from "lucide-react";
+import { Dot, Heart, MessageCircle } from "lucide-react";
 import { checkfollow, followpage } from "../Utils/Followpage";
 import { auth } from "../Backend/firebase-init";
 import { unfollow } from "../Utils/Unfollowpage";
 import { useNavigate } from "react-router-dom";
+import Sidebar from "../Component/Sidebar";
 export default function Readblog() {
   const { currentBlogData } = useContext(blogCurrentData);
   const { currentBlogUserData } = useContext(blogCurrentUserData);
   const [readMin, setReadMin] = useState(0);
   const [isFollow, setIsfollow] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -70,6 +72,9 @@ export default function Readblog() {
     }
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
   // Here is the return Statement Start
   if (!currentBlogUserData || !currentBlogData) {
     return (
@@ -80,6 +85,7 @@ export default function Readblog() {
   } else {
     return (
       <>
+        <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
         <Header />
         <div className="read-outer-div">
           <div className="read-header-part">
@@ -135,6 +141,16 @@ export default function Readblog() {
             >
               {currentBlogData.blog_related_tag}
             </h3>
+          </div>
+          <div className="bottom-read-blog-comment-like-section">
+            <div className="like-post">
+              <Heart size={20} strokeWidth={1.25} />
+              <p className="like-post-text">0</p>
+            </div>
+            <div className="like-post" onClick={toggleSidebar}>
+              <MessageCircle strokeWidth={1.25} size={20} />
+              <p className="like-posst-text">0</p>
+            </div>
           </div>
           <div className="user-detail-follow">
             <div className="user-detail-bottom-read">

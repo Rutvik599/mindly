@@ -1,0 +1,35 @@
+/* Sidebar.css */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 250px;
+  background-color: white;
+  padding: 20px;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  border: none;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  justify-content: end;
+  margin-bottom: 10px;
+}
+
+.sidebar-content {
+  border: 1px solid black;
+  font-size: 18px;
+}

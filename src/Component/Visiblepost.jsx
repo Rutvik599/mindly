@@ -128,12 +128,12 @@ export default function Visiblepost(props) {
           <h3 className="user-name-visible-post">{userData?.user_name}</h3>
         </div>
 
-        <div className="bottom-content-visible-post" onClick={gotoCurrentBlog}>
+        <div className="bottom-content-visible-post">
           <div className="left-side-visible-post">
-            <h1 className="visible-blog-title">
+            <h1 className="visible-blog-title" onClick={gotoCurrentBlog}>
               {props.blogData.poster_title}
             </h1>
-            <h2 className="visible-blog-desc">
+            <h2 className="visible-blog-desc" onClick={gotoCurrentBlog}>
               {props.blogData.poster_description}
             </h2>
             <div className="left-side-visible-bottom">
@@ -180,7 +180,7 @@ export default function Visiblepost(props) {
           </div>
 
           <div className="right-side-visible-post">
-            <img src={blogthumb_nail} alt="" />
+            <img src={blogthumb_nail} alt="" onClick={gotoCurrentBlog} />
           </div>
         </div>
       </div>

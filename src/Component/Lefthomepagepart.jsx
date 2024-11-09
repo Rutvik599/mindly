@@ -52,7 +52,43 @@ export default function Lefthomepagepart({ searchparam }) {
     }));
 
     setBlogs(blogData);
+    console.log(blogs);
   }, [searchparam]);
+
+  const fetchFollowingblog = async () => {
+    setBlogs([]);
+    const followingIntent = collection(db, "Follower");
+    const queryIntent = query(
+      followingIntent,
+      where("follower_id", "==", auth.currentUser.uid)
+    );
+    const documentSnapShots = await getDocs(queryIntent);
+    const followingData = documentSnapShots.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    const followeeIds = followingData.map((item) => item.followee_id);
+
+    const BlogCollectionRef = collection(db, "Blog");
+
+    // Assuming `user_ids` is an array of user IDs from which you want to fetch blogs
+    if (!followeeIds || followeeIds.length === 0) return; // Ensure `user_ids` is not empty
+
+    const queryIntent1 = query(
+      BlogCollectionRef,
+      where("user_id", "in", followeeIds),
+      where("blog_status", "==", "Publish"),
+      limit(5)
+    );
+
+    const documentSnapShots1 = await getDocs(queryIntent1);
+    const blogData = documentSnapShots1.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    setBlogs(blogData);
+  };
 
   useEffect(() => {
     console.log(searchparam);
@@ -60,7 +96,8 @@ export default function Lefthomepagepart({ searchparam }) {
       if (searchparam && auth.currentUser?.uid) {
         fetchInitialBlog();
       } else {
-        console.log(searchparam);
+        console.log("This is the Following Term", searchparam);
+        fetchFollowingblog();
       }
     } catch (error) {
       console.log("BLOG-FETCHING-ERROR-LEFT-HOMEPAGE-PART", error.message);
@@ -106,7 +143,8 @@ export default function Lefthomepagepart({ searchparam }) {
           ))}
         </div>
         <div className="actucal-content-blog">
-          {blogs[0]?.blog_related_tag === searchparam ? (
+          {blogs[0]?.blog_related_tag === searchparam ||
+          (searchparam === undefined && blogs) ? (
             <>
               {blogs
                 .slice()
