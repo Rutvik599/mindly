@@ -3,10 +3,29 @@ import { blogCurrentData, blogCurrentUserData } from "../Utils/context";
 import "../Styles/Readblog.css";
 import Header from "../Component/Header";
 import { Dot } from "lucide-react";
+import { checkfollow, followpage } from "../Utils/Followpage";
+import { auth } from "../Backend/firebase-init";
+import { unfollow } from "../Utils/Unfollowpage";
+import { useNavigate } from "react-router-dom";
 export default function Readblog() {
   const { currentBlogData } = useContext(blogCurrentData);
   const { currentBlogUserData } = useContext(blogCurrentUserData);
   const [readMin, setReadMin] = useState(0);
+  const [isFollow, setIsfollow] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkfollowuse = async () => {
+      const result_check_follow = await checkfollow(
+        auth.currentUser.uid,
+        currentBlogUserData.id
+      );
+
+      result_check_follow ? setIsfollow(true) : setIsfollow(false);
+    };
+
+    checkfollowuse();
+  }, [currentBlogUserData.id]);
 
   const readMinute = (htmlString) => {
     const strippedString = htmlString.replace(/<[^>]*>/g, ""); // Remove HTML tags
@@ -24,10 +43,32 @@ export default function Readblog() {
 
   useEffect(() => {
     document.title = currentBlogData.poster_title + " - Mindly";
-    console.log("Blog Data", currentBlogData);
-    console.log("User Data", currentBlogUserData);
+    //console.log("Blog Data", currentBlogData);
+    //console.log("User Data", currentBlogUserData);
     setReadMin(readMinute(currentBlogData.blog_content));
   }, [currentBlogData, currentBlogUserData]);
+
+  // This function is used when Follow Button is Clicked
+  const followWork = async () => {
+    const result_follow = followpage(
+      auth.currentUser.uid,
+      currentBlogUserData.id
+    );
+    result_follow ? setIsfollow(true) : setIsfollow(false);
+  };
+
+  // This Function is used when Following Button is Clicked
+  const unFollowWork = async () => {
+    const result_unfollow = unfollow(
+      auth.currentUser.uid,
+      currentBlogUserData.id
+    );
+    if (result_unfollow) {
+      setIsfollow(false);
+    } else {
+      setIsfollow(true);
+    }
+  };
 
   // Here is the return Statement Start
   if (!currentBlogUserData || !currentBlogData) {
@@ -56,7 +97,15 @@ export default function Readblog() {
                     {currentBlogUserData.user_name}
                   </h3>
                   <Dot size={15} />
-                  <button className="follow-read">Follow</button>
+                  {!isFollow ? (
+                    <button className="follow-read" onClick={followWork}>
+                      Follow
+                    </button>
+                  ) : (
+                    <button className="follow-read" onClick={unFollowWork}>
+                      Following
+                    </button>
+                  )}
                 </div>
                 <div className="bottom-side">
                   <h3 className="bottom-read-text">
@@ -78,13 +127,25 @@ export default function Readblog() {
 
           <div className="tag-read">
             <h1 className="tag-read-text">Tags</h1>
-            <h3 className="tags-read">{currentBlogData.blog_related_tag}</h3>
+            <h3
+              className="tags-read"
+              onClick={() =>
+                navigate(`/searchresult/${currentBlogData.blog_related_tag}`)
+              }
+            >
+              {currentBlogData.blog_related_tag}
+            </h3>
           </div>
           <div className="user-detail-follow">
             <div className="user-detail-bottom-read">
               <img src={currentBlogUserData.profile_pic_url} alt="" />
               <div className="user-bottom">
-                <div className="bottom-user-name">
+                <div
+                  className="bottom-user-name"
+                  onClick={() =>
+                    navigate(`/search/profile/${currentBlogUserData.user_name}`)
+                  }
+                >
                   <h1 className="profile-name-bottom">
                     {currentBlogUserData.user_name}
                   </h1>
@@ -92,7 +153,15 @@ export default function Readblog() {
                     {currentBlogUserData.user_profile_description}
                   </h2>
                 </div>
-                <button className="follow-bottom-read">Follow</button>
+                {!isFollow ? (
+                  <button className="follow-bottom-read" onClick={followWork}>
+                    Follow
+                  </button>
+                ) : (
+                  <button className="already-follow" onClick={unFollowWork}>
+                    Following
+                  </button>
+                )}
               </div>
             </div>
           </div>

@@ -187,6 +187,7 @@
   border: #d8d8d8 1px solid;
   border-radius: 50px;
   margin-bottom: 10px;
+  cursor: pointer;
 }
 
 .user-detail-follow {
@@ -215,7 +216,7 @@
   margin-bottom: 10px;
 }
 
-.user-bottom > button {
+.follow-bottom-read {
   background-color: rgb(48, 48, 48);
   border: none;
   padding: 10px 25px 10px 25px;
@@ -225,17 +226,24 @@
   align-items: center;
   border-radius: 30px;
   cursor: pointer;
-  &:hover{
+  &:hover {
     background-color: rgb(27, 27, 27);
   }
 }
 
+.already-follow {
+  background-color: transparent;
+  border: none;
+  color: #1a8917;
+  cursor: pointer;
+}
 .profile-name-bottom,
 .bottom-user-desc {
   font-size: 20px;
   font-family: "Poppins", sans-serif;
   font-weight: 600;
   color: #2b2b2b;
+  cursor: pointer;
 }
 .bottom-user-desc {
   font-size: 14px;

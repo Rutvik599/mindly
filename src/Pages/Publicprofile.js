@@ -5,11 +5,16 @@ import { collection, query, limit, where, getDocs } from "firebase/firestore";
 import "../Styles/Publicprofile.css";
 import Publicprofilepost from "../Component/Publicprofilepost";
 import { ArrowLeft } from "lucide-react";
+import { auth } from "../Backend/firebase-init";
+import { unfollow } from "../Utils/Unfollowpage";
+import { checkfollow, followpage } from "../Utils/Followpage";
 export default function Publicprofile() {
+  const [isFollow, setIsFollow] = useState(false);
   const { username } = useParams();
   const [user, setUser] = useState(null);
   const [blogs, setBlogs] = useState([]);
   const navigate = useNavigate();
+
   // Fetch user data from Firestore
   useEffect(() => {
     document.title = `${username} - Profile - Mindly`;
@@ -61,8 +66,33 @@ export default function Publicprofile() {
       }
     };
 
+    const checkfollowuse = async () => {
+      const result_check_follow = await checkfollow(
+        auth.currentUser.uid,
+        user.user_id
+      );
+      console.log(result_check_follow);
+
+      result_check_follow ? setIsFollow(true) : setIsFollow(false);
+    };
+
     fetchBlogs();
+    user ? checkfollowuse() : console.log("No user Found");
   }, [user]); // Fetch blogs only when `user` changes
+
+  const followWork = async () => {
+    const result_follow = followpage(auth.currentUser.uid, user.user_id);
+    result_follow ? setIsFollow(true) : setIsFollow(false);
+  };
+
+  const unFollowWork = async () => {
+    const result_unfollow = unfollow(auth.currentUser.uid, user.user_id);
+    if (result_unfollow) {
+      setIsFollow(false);
+    } else {
+      setIsFollow(true);
+    }
+  };
 
   const gotohome = () => {
     navigate("/");
@@ -70,7 +100,7 @@ export default function Publicprofile() {
   // Render
   return user ? (
     <div className="public-profile-user">
-      <ArrowLeft className="backtohome-arrow-left" onClick={gotohome}/>
+      <ArrowLeft className="backtohome-arrow-left" onClick={gotohome} />
       <div className="user-display-public">
         <div className="left-profile-public">
           <img src={user?.profile_pic_url} alt="" />
@@ -81,7 +111,15 @@ export default function Publicprofile() {
             </p>
           </div>
         </div>
-        <button className="follow-bottom-public-profile">Follow</button>
+        {!isFollow ? (
+          <button className="follow-bottom-public-profile" onClick={followWork}>
+            Follow
+          </button>
+        ) : (
+          <button className="already-follow" onClick={unFollowWork}>
+            Following
+          </button>
+        )}
       </div>
 
       <div className="blogs-list">
