@@ -12,6 +12,7 @@ import BlogContextProvider from "./Utils/Contenxtprovider";
 import Teammindly from "./Pages/Teammindly";
 import Searchpage from "./Pages/Searchpage";
 import Publicprofile from "./Pages/Publicprofile";
+import Yourprofile from "./Pages/Yourprofile";
 
 function App() {
   const [isLoading, setIsLoading] = useState(false);
@@ -70,14 +71,12 @@ function App() {
               path="/r/:username/:blogcontent"
               element={<Readblog setLoading={setLoading} />}
             />
-            <Route
-              path="/searchresult/:searchparam"
-              element={<Searchpage/>}
-            />
+            <Route path="/searchresult/:searchparam" element={<Searchpage />} />
             <Route
               path="/search/profile/:username"
-              element={<Publicprofile/>}
+              element={<Publicprofile />}
             />
+            <Route path="/manageprofile" element={<Yourprofile />} />
           </Route>
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

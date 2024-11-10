@@ -41,19 +41,25 @@ export default function Header({ setLoading }) {
 
     const userProfilePicUrl = localStorage.getItem("profile_pic_url");
     const userInterestedTags = localStorage.getItem("user_interested_tags");
-
+    const userIdfromLocal = localStorage.getItem("user_id");
     if (userProfilePicUrl) {
       setUserProfileImage(userProfilePicUrl);
     }
 
-    if (!userProfilePicUrl || !userInterestedTags) {
+    if (
+      !userProfilePicUrl ||
+      !userInterestedTags ||
+      userIdfromLocal !== auth.currentUser?.uid
+    ) {
       const fetchUserData = async () => {
         const user = auth.currentUser;
+
         if (user) {
           const userDocRef = doc(db, "users", user.uid);
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
             const userData = userDoc.data();
+
             if (userData.profile_pic_url) {
               setUserProfileImage(userData.profile_pic_url);
               localStorage.setItem("profile_pic_url", userData.profile_pic_url);
@@ -77,7 +83,7 @@ export default function Header({ setLoading }) {
     }, 2000);
 
     return () => clearInterval(interval);
-  }, [searchSuggestions]);
+  }, [searchSuggestions, auth.currentUser]);
 
   const gotoSearch = () => {
     console.log("Search Param", searchParams);
@@ -97,11 +103,16 @@ export default function Header({ setLoading }) {
   const clearAllcookies = () => {
     const cookies = document.cookie.split(";");
 
+    // Iterate through each cookie
     cookies.forEach((cookie) => {
+      // Get the cookie name by splitting the cookie string
       const name = cookie.split("=")[0].trim();
-      document.cookie =
-        name + "=;expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+
+      // Delete the cookie by setting its expiry date to a past date and specifying the path
+      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${window.location.hostname}`;
     });
+
+    console.log("All cookies deleted from the current path.");
   };
 
   const signOut = () => {
@@ -209,7 +220,7 @@ export default function Header({ setLoading }) {
         className={`floating-window-sidebar ${sidebar ? "active" : ""}`}
         style={{ border: "1px solid #D8D8D8" }}
       >
-        <div className="content">
+        <div className="content" onClick={() => navigate("/manageprofile")}>
           <UserRound size={20} strokeWidth={1.25} className="icon" />
           <h4 className="floating-window-text">Profile</h4>
         </div>

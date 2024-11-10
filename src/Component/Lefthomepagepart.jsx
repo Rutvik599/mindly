@@ -38,6 +38,7 @@ export default function Lefthomepagepart({ searchparam }) {
   }, []);
 
   const fetchInitialBlog = useCallback(async () => {
+    if (!auth.currentUser?.uid) return;
     const BlogCollectionRef = collection(db, "Blog");
     const queryIntent = query(
       BlogCollectionRef,
@@ -52,10 +53,11 @@ export default function Lefthomepagepart({ searchparam }) {
     }));
 
     setBlogs(blogData);
-    console.log(blogs);
+    console.log("This is My blog data", blogs);
   }, [searchparam]);
 
   const fetchFollowingblog = async () => {
+    if (!auth.currentUser?.uid) return;
     setBlogs([]);
     const followingIntent = collection(db, "Follower");
     const queryIntent = query(
@@ -93,10 +95,11 @@ export default function Lefthomepagepart({ searchparam }) {
   useEffect(() => {
     console.log(searchparam);
     try {
-      if (searchparam && auth.currentUser?.uid) {
+      if (searchparam) {
+        console.log("calling Fetch method");
         fetchInitialBlog();
+        console.log("calling after Fetch method");
       } else {
-        console.log("This is the Following Term", searchparam);
         fetchFollowingblog();
       }
     } catch (error) {

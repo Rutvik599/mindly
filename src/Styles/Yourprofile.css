@@ -1,0 +1,146 @@
+.manage-profile-part {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+.manage-profile-left-side {
+  flex: 7; /* 70% width */
+  border-right: 1px solid #ddd;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.manage-profile-right-side {
+  flex: 3; /* 30% width */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* This is the Whole User Profile Part of CSS*/
+.profile-upper-part {
+  flex: 3;
+  width: 70%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.profile-upper-part > img {
+  width: 20%;
+  border-radius: 100%;
+}
+.profile-upper-part-right-side {
+  width: 100%;
+}
+.main-name-profile-upper-part {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-name-profile-upper-part,
+.profile-upper-part-description,
+.manage-profile-edit-profile,
+.user-post-text,
+.user-name-action > p,
+.loader-follower > p {
+  font-family: "Poppins", sans-serif;
+}
+
+.user-name-profile-upper-part {
+  font-weight: 500;
+}
+.manage-profile-edit-profile {
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+  border: none;
+  gap: 5px;
+  color: #1a8917;
+}
+
+/* This is Part of Css provide css to the Actual Visible Post */
+
+.manage-profile-bottom-part {
+  flex: 7;
+  width: 70%;
+}
+
+.user-post-text {
+  font-weight: 400;
+  margin-top: 20px;
+  width: 100%;
+}
+
+/* This is the Right side of the part which provide Following and Follower part CSS*/
+
+.following-follower-buttons {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+}
+
+.following-follower-buttons > button {
+  flex: 1;
+  padding: 5px;
+  font-family: "Poppins", sans-serif;
+  background-color: transparent;
+  border: none;
+  color: #676767;
+  cursor: pointer;
+}
+.isFollowing.active {
+  border-bottom: 1px black solid;
+  color: black;
+}
+
+.bottom-following-follower-part,
+.follower-active,
+.personal-data-user {
+  width: 100%;
+}
+.personal-data-user {
+  margin: 5px auto;
+  width: 80%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+}
+.user-name-action {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.personal-data-user > img {
+  width: 10%;
+  border-radius: 100%;
+}
+
+.loader-follower {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

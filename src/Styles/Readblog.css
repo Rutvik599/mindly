@@ -57,6 +57,7 @@
 
 .user-detail-read-card > img {
   width: 50px;
+  border-radius: 100%;
 }
 .upper-side,
 .bottom-side {
@@ -220,6 +221,7 @@
 .user-detail-bottom-read > img {
   width: 80px;
   margin-top: 20px;
+  border-radius: 100%;
 }
 
 .user-bottom {
