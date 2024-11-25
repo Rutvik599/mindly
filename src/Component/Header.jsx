@@ -161,7 +161,7 @@ export default function Header({ setLoading }) {
         <h1
           className="sitename"
           style={{ fontSize: "35px", cursor: "pointer" }}
-          onClick={() => navigate("/")}
+          onClick={() => window.location.reload()}
         >
           Mindly
         </h1>

@@ -200,6 +200,7 @@ export default function Lefthomepagepart({ searchparam }) {
               <div className="skeleton-item short"></div>
             </div>
           </div>
+          <div className="spacer"></div>
           <div className="right-bottom-part">
             <div className="trending-topics-title">
               <h1 className="recommended-title">Write Some Emotions</h1>
