@@ -4,10 +4,12 @@ import "../Styles/Readblog.css";
 import Header from "../Component/Header";
 import { Dot, Heart, MessageCircle } from "lucide-react";
 import { checkfollow, followpage } from "../Utils/Followpage";
-import { auth } from "../Backend/firebase-init";
+import { auth, db } from "../Backend/firebase-init";
 import { unfollow } from "../Utils/Unfollowpage";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Sidebar from "../Component/Sidebar";
+import useCommentStore from "../Utils/useCommentStore.js";
+import { arrayRemove, arrayUnion, doc, updateDoc } from "firebase/firestore";
 export default function Readblog() {
   const { currentBlogData } = useContext(blogCurrentData);
   const { currentBlogUserData } = useContext(blogCurrentUserData);
@@ -15,9 +17,25 @@ export default function Readblog() {
   const [isFollow, setIsfollow] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  const [isFilled, setIsFilled] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const { commentIds } = useCommentStore();
+  const { username, blogcontent } = useParams();
+  useEffect(() => {
+    console.log(username, blogcontent);
+  }, []);
 
   useEffect(() => {
+    if (!auth.currentUser?.uid || !currentBlogData) return;
+
+    if (currentBlogData.liked.includes(auth.currentUser.uid)) {
+      setIsFilled(true);
+    }
+
+    setLikeCount(currentBlogData.liked.length);
+
     const checkfollowuse = async () => {
+      if (!auth.currentUser.uid || !currentBlogUserData.id) return;
       const result_check_follow = await checkfollow(
         auth.currentUser.uid,
         currentBlogUserData.id
@@ -27,7 +45,7 @@ export default function Readblog() {
     };
 
     checkfollowuse();
-  }, [currentBlogUserData.id]);
+  }, [currentBlogUserData, currentBlogData]);
 
   const readMinute = (htmlString) => {
     const strippedString = htmlString.replace(/<[^>]*>/g, ""); // Remove HTML tags
@@ -45,8 +63,6 @@ export default function Readblog() {
 
   useEffect(() => {
     document.title = currentBlogData.poster_title + " - Mindly";
-    //console.log("Blog Data", currentBlogData);
-    //console.log("User Data", currentBlogUserData);
     setReadMin(readMinute(currentBlogData.blog_content));
   }, [currentBlogData, currentBlogUserData]);
 
@@ -75,6 +91,20 @@ export default function Readblog() {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  const addIntoLike = async () => {
+    const currentUser = auth.currentUser.uid;
+    const updateLikeRef = doc(db, "Blog", currentBlogData.blog_id);
+    await updateDoc(updateLikeRef, {
+      liked: isFilled ? arrayRemove(currentUser) : arrayUnion(currentUser),
+    });
+    setIsFilled((prev) => !prev);
+
+    isFilled
+      ? setLikeCount((prev) => prev - 1)
+      : setLikeCount((prev) => prev + 1);
+  };
+
   // Here is the return Statement Start
   if (!currentBlogUserData || !currentBlogData) {
     return (
@@ -85,7 +115,11 @@ export default function Readblog() {
   } else {
     return (
       <>
-        <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+        <Sidebar
+          isOpen={isSidebarOpen}
+          toggleSidebar={toggleSidebar}
+          blog_id={currentBlogData.blog_id}
+        />
         <Header />
         <div className="read-outer-div">
           <div className="read-header-part">
@@ -144,12 +178,21 @@ export default function Readblog() {
           </div>
           <div className="bottom-read-blog-comment-like-section">
             <div className="like-post">
-              <Heart size={20} strokeWidth={1.25} />
-              <p className="like-post-text">0</p>
+              <div className="icon-container" onClick={addIntoLike}>
+                <Heart
+                  className={`icon ${isFilled ? "filled" : "outlined"}`}
+                  size={20}
+                />
+              </div>
+              <p className="like-count-read-blog">{likeCount}</p>
             </div>
-            <div className="like-post" onClick={toggleSidebar}>
-              <MessageCircle strokeWidth={1.25} size={20} />
-              <p className="like-posst-text">0</p>
+            <div className="like-post">
+              <MessageCircle
+                strokeWidth={1.25}
+                size={20}
+                onClick={toggleSidebar}
+              />
+              {commentIds?.length ? commentIds?.length : "0"}
             </div>
           </div>
           <div className="user-detail-follow">

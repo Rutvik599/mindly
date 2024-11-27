@@ -1,4 +1,12 @@
-import { collection, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  increment,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { db } from "../Backend/firebase-init";
 import "../Styles/Visiblepost.css";
@@ -6,6 +14,7 @@ import { Bookmark, EllipsisVertical, Share2, Smile } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import { blogCurrentData, blogCurrentUserData } from "../Utils/context";
 import { useNavigate } from "react-router-dom";
+import defaultuser from "../Utils/defaultuser.png";
 
 export default function Visiblepost(props) {
   const [userData, setuserData] = useState(null);
@@ -13,7 +22,6 @@ export default function Visiblepost(props) {
   const { setCurrentBlogData } = useContext(blogCurrentData);
   const { setCurrentBlogUserData } = useContext(blogCurrentUserData);
   const navigate = useNavigate();
-
   const fetchuserData = useCallback(async () => {
     try {
       const UserProfileRef = collection(db, "users");
@@ -42,13 +50,17 @@ export default function Visiblepost(props) {
   useEffect(() => {
     const data_image = getFirstImageSrc(props.blogData.blog_content);
     setThumbnail(data_image);
-
     if (props.blogData.user_id) {
       fetchuserData();
     } else {
       console.log("USER_ID IS STILL NOT AVAILABLE");
     }
-  }, [props.blogData.user_id, props.blogData.blog_content, fetchuserData]);
+  }, [
+    props.blogData.user_id,
+    props.blogData.blog_content,
+    fetchuserData,
+    props.myUserData,
+  ]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -59,6 +71,7 @@ export default function Visiblepost(props) {
   };
 
   const generateLink = () => {
+    if (!userData) return;
     const { poster_title, blog_id } = props.blogData;
     const { user_name } = userData;
 
@@ -98,13 +111,17 @@ export default function Visiblepost(props) {
       });
   };
 
-  const gotoCurrentBlog = () => {
+  const gotoCurrentBlog = async () => {
     const linkToCopy = generateLink();
     setCurrentBlogData(props.blogData);
     setCurrentBlogUserData(userData);
-    console.log(linkToCopy);
-
-    navigate(linkToCopy);
+    try {
+      const updateUserInteraction = doc(db, "Blog", props.blogData.blog_id);
+      await updateDoc(updateUserInteraction, { viewCount: increment(1) });
+      navigate(linkToCopy);
+    } catch (error) {
+      console.log("ERROR-FROM-VISIBLE-POST-VIEW-COUNT\n", error.message);
+    }
   };
 
   const gotouser = () => {
@@ -113,6 +130,7 @@ export default function Visiblepost(props) {
       ? navigate(`/search/profile/${userData.user_name}`)
       : alert("No user found currently");
   };
+
   return (
     <>
       <ToastContainer
@@ -124,8 +142,10 @@ export default function Visiblepost(props) {
       />
       <div className="visible-post-main-div">
         <div className="top-side-visible-post" onClick={gotouser}>
-          <img src={userData?.profile_pic_url} alt="" />
-          <h3 className="user-name-visible-post">{userData?.user_name}</h3>
+          <img src={userData?.profile_pic_url || defaultuser} alt="" />
+          <h3 className="user-name-visible-post">
+            {userData?.user_name || "Loading.."}
+          </h3>
         </div>
 
         <div className="bottom-content-visible-post">
@@ -150,10 +170,8 @@ export default function Visiblepost(props) {
                     color: "#676767",
                   }}
                 >
-                  <Smile size={20} strokeWidth={1.25} color="#676767" />{" "}
-                  {props.blogData.user_interaction
-                    ? props.blogData.user_interaction
-                    : "0"}
+                  <Smile size={16} strokeWidth={1.25} color="#676767" />{" "}
+                  {props.blogData.viewCount ? props.blogData.viewCount : "0"}
                 </span>
               </div>
               <div className="interation-right">

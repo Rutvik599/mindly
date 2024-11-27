@@ -2,9 +2,16 @@ import React, { useEffect, useState } from "react";
 import Header from "../Component/Header";
 import { auth, db } from "../Backend/firebase-init";
 import { getuserDetail } from "../Utils/getuserDetail";
-import { collection, getDocs, limit, query, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  limit,
+  query,
+  where,
+} from "firebase/firestore";
 import "../Styles/Yourprofile.css";
-import { Ellipsis, EllipsisVertical, Pen } from "lucide-react";
+import { Ellipsis, EllipsisVertical, Pen, X } from "lucide-react";
 import Publicprofilepost from "../Component/Publicprofilepost";
 export default function Yourprofile() {
   const [userprofile, setUserprofile] = useState([]);
@@ -14,9 +21,12 @@ export default function Yourprofile() {
   const [followeeProfileDetail, setFolloweeProfileDetail] = useState([]);
   const [followerData, setFollowerData] = useState([]);
   const [followerDataIds, setFollowerDataIds] = useState([]);
+  const [isPost, setIsPost] = useState(true);
+  const [saveData, setsaveData] = useState([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   useEffect(() => {
     const fetchUserData = async () => {
-      if (!auth.currentUser.uid) return;
+      if (!auth.currentUser?.uid) return;
       try {
         const userData = await getuserDetail(auth.currentUser.uid);
         setUserprofile(userData[0]);
@@ -34,7 +44,7 @@ export default function Yourprofile() {
       const blogCollection = collection(db, "Blog");
       const queryIntent = query(
         blogCollection,
-        where("user_id", "==", userprofile.user_id),
+        where("user_id", "==", auth.currentUser.uid),
         where("blog_status", "==", "Publish")
       );
       const blogDataSnapShots = await getDocs(queryIntent);
@@ -59,7 +69,6 @@ export default function Yourprofile() {
         ...doc.data(),
       }));
       setFolloweeIds(followeeData);
-      console.log("From Follower Table", followeeIds);
     };
 
     userprofile ? getUserBlog() : console.log("No User Found");
@@ -83,7 +92,6 @@ export default function Yourprofile() {
             }
             return prev; // If the user already exists, return the previous state
           });
-          console.log(followeeProfileDetail); // Note: This might still log stale state because setState is asynchronous
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -143,8 +151,71 @@ export default function Yourprofile() {
       getFollowerData();
     }
   };
+
+  const savedBlog = async (blogId) => {
+    try {
+      const blogRef = collection(db, "Blog"); // Correctly reference the collection
+      const q = query(blogRef, where("blog_id", "in", blogId)); // Create a query
+      const docData = await getDocs(q);
+      const data = docData.docs.map((doc) => doc.data());
+      /*  console.log("This is what data is", typeof userBlog);
+      console.log("This is what we have", typeof data); */
+
+      setsaveData(data);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+  const loadSavedData = async () => {
+    if (!userprofile.saveList) return;
+
+    savedBlog(userprofile.saveList);
+  };
+
   return (
     <>
+      {isDialogOpen && (
+        <div className="dialog-backdrop" onClick={() => setIsDialogOpen(false)}>
+          <div
+            className="dialogbox-profile"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="site-name-from-side-bar">
+              <h2 className="sitename" style={{ margin: "0px" }}>
+                Mindly
+              </h2>
+              <X
+                size={20}
+                strokeWidth={1.25}
+                onClick={() => setIsDialogOpen(false)}
+                style={{ cursor: "pointer" }}
+              />
+            </div>
+            <div className="changeusername">
+              <p className="laber-for-input">Email Address</p>
+              <input type="text" value={auth.currentUser.email} disabled />
+            </div>
+            <div className="changeimage">
+              <p className="laber-for-input">Profile Picture</p>
+              <img src={userprofile.profile_pic_url} alt="" />
+              <input type="image" style={{ display: "none" }} />
+            </div>
+            <div className="changeusername">
+              <p className="laber-for-input">Username</p>
+              <input type="text" value={userprofile.user_name} />
+            </div>
+            <div className="changeusername">
+              <p className="laber-for-input">Description</p>
+              <input type="text" value={userprofile.user_profile_description} />
+            </div>
+            <div className="comment-edit-button">
+              <button className="edit-comment-button">Update</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* this is the main page */}
       <Header />
       <div className="manage-profile-part">
         <div className="manage-profile-left-side">
@@ -165,19 +236,64 @@ export default function Yourprofile() {
               <p className="profile-upper-part-description">
                 {userprofile.user_profile_description}
               </p>
-              <button className="manage-profile-edit-profile">
+              <button
+                className="manage-profile-edit-profile"
+                onClick={() => setIsDialogOpen(true)}
+              >
                 <Pen size={14} strokeWidth={1.25} />
                 Edit Profile
               </button>
             </div>
           </div>
           <div className="manage-profile-bottom-part">
-            <p className="user-post-text">Post</p>
-            {userBlog.map((blog, index) => (
-              <div key={index}>
-                <Publicprofilepost blogData={blog} />
+            <div className="post-and-savelist-user">
+              <button
+                className={`visible-post-buttons ${
+                  isPost ? "active-button-post" : ""
+                }`}
+                onClick={() => setIsPost(true)}
+              >
+                Post
+              </button>
+              <button
+                className={`visible-post-buttons ${
+                  !isPost ? "active-button-post" : ""
+                }`}
+                onClick={() => {
+                  setIsPost(false);
+                  loadSavedData();
+                }}
+              >
+                Saved
+              </button>
+            </div>
+            {isPost
+              ? userBlog.map((blog, index) => (
+                  <div key={index}>
+                    <Publicprofilepost blogData={blog} userData={userprofile} />
+                  </div>
+                ))
+              : saveData.map((blog, index) => (
+                  <div key={index}>
+                    <Publicprofilepost
+                      blogData={blog}
+                      isSaved={true}
+                      userData={userprofile}
+                    />
+                  </div>
+                ))}
+
+            {isPost && userBlog.length <= 0 && (
+              <div className="no-data-found">
+                <p>Oops! It seems like you haven't shared anything yet.</p>
               </div>
-            ))}
+            )}
+
+            {!isPost && saveData.length <= 0 && (
+              <div className="no-data-found">
+                <p>Oops! It seems like you haven't shared anything yet.</p>
+              </div>
+            )}
           </div>
         </div>
         <div className="manage-profile-right-side">

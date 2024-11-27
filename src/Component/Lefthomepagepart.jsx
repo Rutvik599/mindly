@@ -9,13 +9,11 @@ import { collection, getDocs, limit, query, where } from "firebase/firestore";
 import Visiblepost from "./Visiblepost";
 import { blogTags } from "../Utils/tags.js";
 import { generateRandomId } from "../Utils/generateId";
-
 export default function Lefthomepagepart({ searchparam }) {
   const [userInterestedTag, setInterestedTag] = useState(["Following"]);
   const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
   const [recommendedTags, setrecommendedTags] = useState([]);
-
   const getRandomTags = (tags, count = 6) => {
     const shuffledTags = [...tags].sort(() => 0.5 - Math.random());
     return shuffledTags.slice(0, count);
@@ -25,7 +23,6 @@ export default function Lefthomepagepart({ searchparam }) {
     const tags = localStorage.getItem("user_interested_tags");
     if (tags) {
       const og_tags = tags.split(",").map((tag) => tag.trim());
-      console.log(og_tags);
 
       setInterestedTag((prevTags) => {
         const combinedTags = [...prevTags, ...og_tags];
@@ -33,8 +30,12 @@ export default function Lefthomepagepart({ searchparam }) {
       });
     }
 
+    const fetchMyuser = async () => {
+      if (!auth.currentUser?.uid) return;
+    };
     const randomTags = getRandomTags(blogTags);
     setrecommendedTags(randomTags);
+    fetchMyuser();
   }, []);
 
   const fetchInitialBlog = useCallback(async () => {
@@ -53,7 +54,6 @@ export default function Lefthomepagepart({ searchparam }) {
     }));
 
     setBlogs(blogData);
-    console.log("This is My blog data", blogs);
   }, [searchparam]);
 
   const fetchFollowingblog = async () => {
@@ -93,12 +93,9 @@ export default function Lefthomepagepart({ searchparam }) {
   };
 
   useEffect(() => {
-    console.log(searchparam);
     try {
       if (searchparam) {
-        console.log("calling Fetch method");
         fetchInitialBlog();
-        console.log("calling after Fetch method");
       } else {
         fetchFollowingblog();
       }

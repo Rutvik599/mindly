@@ -1,6 +1,5 @@
-import { collection, getDocs, query, where } from "firebase/firestore";
-import React, { useCallback, useContext, useEffect, useState } from "react";
-import { db } from "../Backend/firebase-init";
+import React, { useContext, useEffect, useState } from "react";
+
 import "../Styles/Visiblepost.css";
 import { Bookmark, EllipsisVertical, Share2, Smile } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
@@ -8,29 +7,10 @@ import { blogCurrentData, blogCurrentUserData } from "../Utils/context";
 import { useNavigate } from "react-router-dom";
 
 export default function Publicprofilepost(props) {
-  const [userData, setuserData] = useState(null);
   const [blogthumb_nail, setThumbnail] = useState(null);
   const { setCurrentBlogData } = useContext(blogCurrentData);
   const { setCurrentBlogUserData } = useContext(blogCurrentUserData);
   const navigate = useNavigate();
-
-  const fetchuserData = useCallback(async () => {
-    try {
-      const UserProfileRef = collection(db, "users");
-      const queryIntent = query(
-        UserProfileRef,
-        where("user_id", "==", props.blogData?.user_id)
-      );
-      const documentSnapShots = await getDocs(queryIntent);
-      const user_data_firebase = documentSnapShots.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setuserData(user_data_firebase[0]);
-    } catch (error) {
-      console.log("VISIBLE-POST-ERROR-USER-PROFILE-FETCHING", error.message);
-    }
-  }, [props.blogData?.user_id]);
 
   const getFirstImageSrc = (htmlContent) => {
     const tempDiv = document.createElement("div"); // Create a temporary div
@@ -42,13 +22,7 @@ export default function Publicprofilepost(props) {
   useEffect(() => {
     const data_image = getFirstImageSrc(props.blogData.blog_content);
     setThumbnail(data_image);
-
-    if (props.blogData.user_id) {
-      fetchuserData();
-    } else {
-      console.log("USER_ID IS STILL NOT AVAILABLE");
-    }
-  }, [props.blogData.user_id, props.blogData.blog_content, fetchuserData]);
+  }, [props.blogData.user_id, props.blogData.blog_content]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -60,7 +34,7 @@ export default function Publicprofilepost(props) {
 
   const generateLink = () => {
     const { poster_title, blog_id } = props.blogData;
-    const { user_name } = userData;
+    const { user_name } = props.userData;
 
     // Clean the blog title
     const cleanTitle = poster_title
@@ -101,7 +75,7 @@ export default function Publicprofilepost(props) {
   const gotoCurrentBlog = () => {
     const linkToCopy = generateLink();
     setCurrentBlogData(props.blogData);
-    setCurrentBlogUserData(userData);
+    setCurrentBlogUserData(props.userData);
     console.log(linkToCopy);
 
     navigate(linkToCopy);
@@ -145,12 +119,14 @@ export default function Publicprofilepost(props) {
                 </span>
               </div>
               <div className="interation-right">
-                <Bookmark
-                  color="#676767"
-                  size={20}
-                  strokeWidth={1.25}
-                  style={{ cursor: "pointer" }}
-                />
+                {!props.isSaved && (
+                  <Bookmark
+                    color="#676767"
+                    size={20}
+                    strokeWidth={1.25}
+                    style={{ cursor: "pointer" }}
+                  />
+                )}
                 <Share2
                   color="#676767"
                   size={20}

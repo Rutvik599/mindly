@@ -170,7 +170,7 @@
 .bottom-read-blog-comment-like-section {
   border-top: none;
   display: flex;
-  gap: 50px;
+  gap: 30px;
   align-items: center;
   margin-bottom: 0px;
 }
@@ -292,6 +292,48 @@
 .sidebar.open {
   transform: translateX(0); /* Slide in when open */
 }
+
+.icon-container {
+  display: inline-block;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.icon-container:active {
+  transform: scale(0.95); /* Slight shrink on click */
+}
+
+/* Base Icon Styles */
+.icon {
+  transition: fill 0.2s ease-in-out, transform 0.3s ease;
+}
+
+/* Outlined Icon Style */
+.icon.outlined {
+  stroke: #2b2b2b; /* Outline color */
+  fill: none; /* No fill */
+}
+
+/* Filled Icon Style with Animation */
+.icon.filled {
+  stroke: #2b2b2b; /* Stroke for outline */
+  fill: #2b2b2b; /* Heart red */
+  animation: bump 0.3s ease; /* Bumping effect */
+}
+
+/* Bump Animation */
+@keyframes bump {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2); /* Slightly larger */
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
