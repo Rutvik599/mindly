@@ -12,9 +12,10 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../Backend/firebase-init";
-import { getDoc, doc } from "firebase/firestore";
+import { getDoc, doc, setDoc, onSnapshot } from "firebase/firestore";
 import { generateRandomId } from "../Utils/generateId";
 import { blogTags } from "../Utils/tags";
+import { getuserDetail } from "../Utils/getuserDetail";
 
 export default function Header({ setLoading }) {
   const [userProfilePicUrl, setUserProfileImage] = useState(null);
@@ -35,6 +36,27 @@ export default function Header({ setLoading }) {
     ],
     []
   );
+
+  useEffect(() => {
+    const userId = auth.currentUser?.uid;
+    if (!userId) return;
+    const userRef = doc(db, "users", userId);
+    const unsubscribe = onSnapshot(userRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const activeSession = docSnapshot.data().activeSession;
+        const localSession = localStorage.getItem("sessionId");
+
+        if (activeSession !== localSession) {
+          signOut();
+        }
+      }
+    });
+
+    return () => {
+      // Cleanup listener
+      unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     document.title = "Welcome to Mindly";
@@ -111,11 +133,9 @@ export default function Header({ setLoading }) {
       // Delete the cookie by setting its expiry date to a past date and specifying the path
       document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${window.location.hostname}`;
     });
-
-    console.log("All cookies deleted from the current path.");
   };
 
-  const signOut = () => {
+  const signOut = async () => {
     try {
       auth.signOut();
       clearAllcookies();

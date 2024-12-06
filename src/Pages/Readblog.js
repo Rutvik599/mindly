@@ -9,10 +9,21 @@ import { unfollow } from "../Utils/Unfollowpage";
 import { useNavigate, useParams } from "react-router-dom";
 import Sidebar from "../Component/Sidebar";
 import useCommentStore from "../Utils/useCommentStore.js";
-import { arrayRemove, arrayUnion, doc, updateDoc } from "firebase/firestore";
+import {
+  arrayRemove,
+  arrayUnion,
+  collection,
+  doc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
+import { getuserDetail } from "../Utils/getuserDetail.js";
 export default function Readblog() {
-  const { currentBlogData } = useContext(blogCurrentData);
-  const { currentBlogUserData } = useContext(blogCurrentUserData);
+  const { currentBlogData, setCurrentBlogData } = useContext(blogCurrentData);
+  const { currentBlogUserData, setCurrentBlogUserData } =
+    useContext(blogCurrentUserData);
   const [readMin, setReadMin] = useState(0);
   const [isFollow, setIsfollow] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -21,18 +32,43 @@ export default function Readblog() {
   const [likeCount, setLikeCount] = useState(0);
   const { commentIds } = useCommentStore();
   const { username, blogcontent } = useParams();
+  const [isLodaing, setIsLoading] = useState(false);
+  const getBlogDetail = async () => {
+    const blogId = blogcontent.split("-").pop();
+    const blogRef = collection(db, "Blog");
+    const blogIntent = query(blogRef, where("blog_id", "==", blogId));
+    const querySnapshot = await getDocs(blogIntent);
+
+    if (!querySnapshot.empty) {
+      const blogData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setCurrentBlogData(blogData);
+      const userDetailBlog = getuserDetail(blogData.user_id);
+      setCurrentBlogUserData(userDetailBlog);
+    }
+  };
+
   useEffect(() => {
-    console.log(username, blogcontent);
+    const blogId = blogcontent.split("-").pop();
+    console.log("USERNAME", username, "\nBLOG_CONTENT", blogId);
+    console.log(currentBlogData);
+
+    if (!currentBlogData) {
+      getBlogDetail();
+    }
   }, []);
 
   useEffect(() => {
     if (!auth.currentUser?.uid || !currentBlogData) return;
 
-    if (currentBlogData.liked.includes(auth.currentUser.uid)) {
+    if (currentBlogData.liked?.includes(auth.currentUser.uid)) {
       setIsFilled(true);
     }
 
-    setLikeCount(currentBlogData.liked.length);
+    setLikeCount(currentBlogData.liked?.length);
 
     const checkfollowuse = async () => {
       if (!auth.currentUser.uid || !currentBlogUserData.id) return;
@@ -106,7 +142,7 @@ export default function Readblog() {
   };
 
   // Here is the return Statement Start
-  if (!currentBlogUserData || !currentBlogData) {
+  if (isLodaing) {
     return (
       <div className="loading-read-outer">
         <div className="loading-read-inner"></div>
@@ -149,7 +185,10 @@ export default function Readblog() {
                 </div>
                 <div className="bottom-side">
                   <h3 className="bottom-read-text">
-                    {(readMin / 200).toFixed(0)} min read
+                    {(readMin / 200).toFixed(0) > 0
+                      ? (readMin / 200).toFixed(0)
+                      : 1}{" "}
+                    min read
                   </h3>
                   <Dot size={10} />
                   <h3 className="uploded-on">

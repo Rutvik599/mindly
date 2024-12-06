@@ -9,6 +9,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendEmailVerification,
+  db,
 } from "../Backend/firebase-init";
 import {
   getAuth,
@@ -16,11 +17,13 @@ import {
   sendPasswordResetEmail,
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { generateRandomId } from "../Utils/generateId";
+import { doc, setDoc } from "firebase/firestore";
 
 export default function Homeapage({ setLoading }) {
   // State variables
   const [isNewUser, setIsNewUser] = useState(() => {
-    return localStorage.getItem('newUser') === 'true' || false;
+    return localStorage.getItem("newUser") === "true" || false;
   });
   const [loading, isLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -32,6 +35,11 @@ export default function Homeapage({ setLoading }) {
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const localSession = localStorage.getItem("sessionId");
+    console.log("Local session cookies", localSession);
+  }, []);
 
   // Toggle visibility of password
   const togglePasswordVisibility = () => setPasswordVisible((prev) => !prev);
@@ -45,7 +53,7 @@ export default function Homeapage({ setLoading }) {
 
   // Handle user authentication state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         if (user.emailVerified) {
           if (isNewUser) {
@@ -54,6 +62,14 @@ export default function Homeapage({ setLoading }) {
             toast.success("Login successful", {
               style: { fontSize: "14px", fontFamily: "Roboto" },
             });
+            const sessionId = generateRandomId();
+            const userRef = doc(db, "users", user.uid);
+            localStorage.setItem("sessionId", sessionId);
+            await setDoc(
+              userRef,
+              { activeSession: sessionId },
+              { merge: true }
+            );
             navigate("/");
           }
         } else {
@@ -140,7 +156,7 @@ export default function Homeapage({ setLoading }) {
         const user = userCredential.user;
         await sendEmailVerification(user);
         setIsNewUser(true);
-        localStorage.setItem('newUser', 'true');
+        localStorage.setItem("newUser", "true");
         closeForm(3);
       } catch (error) {
         checkError(error);
