@@ -8,11 +8,13 @@ import {
   getDocs,
   limit,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import "../Styles/Yourprofile.css";
 import { Ellipsis, EllipsisVertical, Pen, X } from "lucide-react";
 import Publicprofilepost from "../Component/Publicprofilepost";
+import { toast, ToastContainer } from "react-toastify";
 export default function Yourprofile() {
   const [userprofile, setUserprofile] = useState([]);
   const [userBlog, setUserBlog] = useState([]);
@@ -24,6 +26,8 @@ export default function Yourprofile() {
   const [isPost, setIsPost] = useState(true);
   const [saveData, setsaveData] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newUsername, setnewUsername] = useState("");
+  const [newDescription, setnewDescription] = useState("");
   useEffect(() => {
     const fetchUserData = async () => {
       if (!auth.currentUser?.uid) return;
@@ -73,6 +77,8 @@ export default function Yourprofile() {
 
     userprofile ? getUserBlog() : console.log("No User Found");
     userprofile ? getFolloweeData() : console.log("No User Found");
+    setnewUsername(userprofile.user_name);
+    setnewDescription(userprofile.user_profile_description);
   }, [userprofile]);
 
   useEffect(() => {
@@ -144,7 +150,7 @@ export default function Yourprofile() {
     setFollowerDataIds(followeeData);
     getAllFollowersData();
   };
-  useEffect(() => {}, []);
+
   const toggleIsFollowing = () => {
     setIsFollowing(!isFollowing);
     if (!isFollowing) {
@@ -172,8 +178,46 @@ export default function Yourprofile() {
     savedBlog(userprofile.saveList);
   };
 
+  const updateProfile = async () => {
+    if (!newUsername || !newDescription) return;
+
+    if (
+      newUsername === userprofile.user_name &&
+      newDescription === userprofile.user_profile_description
+    ) {
+      toast.error(
+        `Oops! Looks like you haven't made any changes to your profile yet.`
+      );
+
+      return;
+    }
+    const updateData = {};
+    if (newUsername !== userprofile.user_name) {
+      updateData.user_name = newUsername;
+    }
+
+    if (newDescription !== userprofile.user_profile_description) {
+      updateData.user_profile_description = newDescription;
+    }
+
+    const updatedDocRef = doc(db, "users", auth.currentUser.uid);
+
+    try {
+      await updateDoc(updatedDocRef, updateData);
+      window.location.reload();
+    } catch (error) {
+      console.log("ERROR-UPDATING-PROFILE", error.message);
+    }
+  };
   return (
     <>
+      <ToastContainer
+        style={{
+          fontFamily: "Poppins",
+          fontSize: "14px",
+        }}
+        autoClose={2000}
+      />
       {isDialogOpen && (
         <div className="dialog-backdrop" onClick={() => setIsDialogOpen(false)}>
           <div
@@ -193,23 +237,41 @@ export default function Yourprofile() {
             </div>
             <div className="changeusername">
               <p className="laber-for-input">Email Address</p>
-              <input type="text" value={auth.currentUser.email} disabled />
+              <input
+                type="text"
+                value={auth.currentUser.email}
+                disabled
+                style={{ cursor: "no-drop" }}
+              />
             </div>
             <div className="changeimage">
               <p className="laber-for-input">Profile Picture</p>
-              <img src={userprofile.profile_pic_url} alt="" />
-              <input type="image" style={{ display: "none" }} />
+              <img
+                src={userprofile.profile_pic_url}
+                alt={`${userprofile.user_name}.jpge`}
+                style={{ cursor: "no-drop" }}
+              />
             </div>
             <div className="changeusername">
               <p className="laber-for-input">Username</p>
-              <input type="text" value={userprofile.user_name} />
+              <input
+                type="text"
+                value={newUsername}
+                onChange={(e) => setnewUsername(e.target.value)}
+              />
             </div>
             <div className="changeusername">
               <p className="laber-for-input">Description</p>
-              <input type="text" value={userprofile.user_profile_description} />
+              <input
+                type="text"
+                value={newDescription}
+                onChange={(e) => setnewDescription(e.target.value)}
+              />
             </div>
             <div className="comment-edit-button">
-              <button className="edit-comment-button">Update</button>
+              <button className="edit-comment-button" onClick={updateProfile}>
+                Update
+              </button>
             </div>
           </div>
         </div>

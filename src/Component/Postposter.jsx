@@ -150,6 +150,12 @@ export default function Postposter(props) {
           </h3>
           <Dot color="#676767" size={20} />
           <h3 className="totalword">{totalword} words</h3>
+          {props.blogData?.blog_related_tag && (
+            <>
+              <Dot color="#676767" size={20} />
+              <h3 className="totalword">{props.blogData.blog_related_tag}</h3>
+            </>
+          )}
         </div>
       </div>
     </>

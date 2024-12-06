@@ -68,6 +68,7 @@
   margin-top: 10px;
   border: none;
   gap: 5px;
+  cursor: pointer;
   color: #1a8917;
 }
 
@@ -203,6 +204,7 @@
   border: #ddd 1px solid;
   font-family: "Poppins", sans-serif;
   outline: none;
+  border-radius: 5px;
 }
 @keyframes spin {
   0% {
